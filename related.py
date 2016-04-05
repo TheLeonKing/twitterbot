@@ -179,6 +179,7 @@ def fetchRelated(mode):
     relatedItems = db.executeQuery(query, output=True)
     
     # Query output is a list of singleton tuples; convert this to a list.
+    if relatedItems is None: return []
     return [x[0] for x in relatedItems]
 
 def printRelated(mode):

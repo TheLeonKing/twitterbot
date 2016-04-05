@@ -185,7 +185,7 @@ def printRelated(mode):
     ''' Pretty prints the related keywords/accounts. '''
     related = fetchRelated(mode)
     if len(related) == 0: print '\nThe database currently contains no ' + str(mode) + '.\n'
-    else: print '\nThe database currently contains the following ' + str(mode) + ': ' +  + '\n'
+    else: print '\nThe database currently contains the following ' + str(mode) + ': ' + ', '.join(related)  + '\n'
 
 def updateKeywords():
     '''
