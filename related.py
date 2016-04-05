@@ -183,9 +183,9 @@ def fetchRelated(mode):
 
 def printRelated(mode):
     ''' Pretty prints the related keywords/accounts. '''
-    related = ', '.join(fetchRelated(mode))
-    if len(related) == 0: print 'The database currently contains no ' + str(mode) + '.'
-    else: print '\nThe database currently contains the following ' + str(mode) + ': ' +  + '\n'
+    related = fetchRelated(mode)
+    if len(related) == 0: print '\nThe database currently contains no ' + str(mode) + '.\n'
+    else: print '\nThe database currently contains the following ' + str(mode) + ': ' + ', '.join(related)  + '\n'
 
 def updateKeywords():
     '''
@@ -197,14 +197,14 @@ def updateKeywords():
     printRelated('keywords')
     userItem = raw_input('For which keyword do you want to find related keywords? ')
     
-    # If the user entered a single word, find the keywords related to this keyword
-    # and ask the user which of those (s)he wants to enter in the database.
-    if re.match(r'\A[\w-]+\Z', userItem):
+    # Find the keywords related to this keyword and ask the user
+    # which of those (s)he wants to enter in the database.
+    if len(userItem.strip()) > 3:
         keywords = fetchRelated('keywords')
         relatedItems = findRelatedKeywords(userItem, keywords)
         userUpdate(relatedItems, 'keywords')
     
-    # If the user entered more than one word, show an error and re-prompt for a keyword.
+    # If the user entered a keyword that's too short, show an error and re-prompt for a keyword.
     else:
         print 'You should input a single term.'
         updateKeywords()
