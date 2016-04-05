@@ -32,7 +32,7 @@ config = ConfigParser.ConfigParser()
 config.read('config.ini')
 
 # Set up the error file.
-logging.basicConfig(filename='errors.log', level=logging.WARNING)
+logging.basicConfig(filename='errors.log', level=logging.DEBUG)
 
 # Set the bot's handle.
 myHandle = config.get('bot', 'handle')

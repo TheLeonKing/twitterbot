@@ -20,7 +20,7 @@ config = ConfigParser.ConfigParser()
 config.read('config.ini')
 
 # Set up the error file.
-logging.basicConfig(filename='errors.log', level=logging.DEBUG)
+logging.basicConfig(filename='errors.log', level=logging.WARNING)
 
 # Set up the Twitter API.
 twython = Twython(

@@ -13,7 +13,7 @@ config = ConfigParser.ConfigParser()
 config.read('config.ini')
 
 # Set up the error file.
-logging.basicConfig(filename='errors.log', level=logging.WARNING)
+logging.basicConfig(filename='errors.log', level=logging.DEBUG)
 
 # Set the handle and database configuration.
 myHandle = config.get('bot', 'handle')
