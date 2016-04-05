@@ -257,7 +257,7 @@ if __name__ == '__main__':
         print '\nRelated keywords updated!'
         printRelated('keywords')
     # If first argument is 'accounts', only update accounts.
-    elif len(sys.argv) > 1 and sys.argv[2] == 'accounts':
+    elif len(sys.argv) > 1 and sys.argv[1] == 'accounts':
         updateAccounts()
         print '\nRelated accounts updated!'
         printRelated('accounts')

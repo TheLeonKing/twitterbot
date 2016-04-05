@@ -96,7 +96,7 @@ if __name__ == '__main__':
         print '\nProbabilities for tweet updated!'
         printProbs('tweet')
     # If first argument is 'follow', only update follow probs.
-    elif len(sys.argv) > 1 and sys.argv[2] == 'follow':
+    elif len(sys.argv) > 1 and sys.argv[1] == 'follow':
         updateProbs('follow')
         print '\nProbabilities for follow updated!'
         printProbs('follow')
