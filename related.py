@@ -28,6 +28,12 @@ twython = Twython(
     config.get('twitter', 'appSecret'),
     config.get('twitter', 'oAuthToken'),
     config.get('twitter', 'oAuthSecret'),
+    client_args =   {
+                        'proxies': {
+                            'http' : config.get('proxies', 'http'),
+                            'https': config.get('proxies', 'https')
+                        }
+                    }
 )
 
 # Set up the bad words and stopwords list.

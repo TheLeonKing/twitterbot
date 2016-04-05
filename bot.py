@@ -1,4 +1,4 @@
-''' The Twitter bot that constantly runs. '''
+''' The Twitter bot script that constantly runs. '''
 
 import bitly_api
 import db
@@ -46,8 +46,13 @@ twython = Twython(
     config.get('twitter', 'appSecret'),
     config.get('twitter', 'oAuthToken'),
     config.get('twitter', 'oAuthSecret'),
+    client_args =   {
+                        'proxies': {
+                            'http' : config.get('proxies', 'http'),
+                            'https': config.get('proxies', 'https')
+                        }
+                    }
 )
-
 
 # Set up the bad words list.
 badWords = set(line.strip('\n') for line in open('bad_words.txt'))\

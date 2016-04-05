@@ -46,8 +46,13 @@ twython = Twython(
     config.get('twitter', 'appSecret'),
     config.get('twitter', 'oAuthToken'),
     config.get('twitter', 'oAuthSecret'),
+    client_args =   {
+                        'proxies': {
+                            'http' : config.get('proxies', 'http'),
+                            'https': config.get('proxies', 'https')
+                        }
+                    }
 )
-
 
 # Set up the bad words list.
 badWords = set(line.strip('\n') for line in open('bad_words.txt'))\
@@ -326,8 +331,6 @@ def updateFollowers():
                     insertFollower(user['id'], user['screen_name'], user['followers_count'])
                     print '\nAdded follower to database:', user['screen_name']
             nextCursor = results['next_cursor']
-
-        print '\nFollowers updated.'
         return None
     except Exception as e:
         logging.warning('BOT:' + str(e))

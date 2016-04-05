@@ -23,11 +23,18 @@ config.read('config.ini')
 logging.basicConfig(filename='errors.log', level=logging.DEBUG)
 
 # Set up the Twitter API.
+client_args = {
+    'proxies': {
+        'http' : '45.32.230.168:80',
+        'https': '188.203.209.91:3128'
+    }
+}
 twython = Twython(
     config.get('twitter', 'appKey'),
     config.get('twitter', 'appSecret'),
     config.get('twitter', 'oAuthToken'),
     config.get('twitter', 'oAuthSecret'),
+    client_args=client_args
 )
 
 # Set up the bad words and stopwords list.
@@ -68,7 +75,6 @@ def matchingWords(keyword):
                         words.append(word)
             maxId = int(seen[-1])-1 # -1 because max_id is inclusive.
         except Exception as e:
-            print e
             logging.warning('RELATED:' + str(e))
             return []
     

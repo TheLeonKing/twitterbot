@@ -10,6 +10,10 @@ name: twitterbot
 [alchemy]
 apiKey: 131e9eacec5491cb6ece3046341be3be94a9d16d
 
+[bitly]
+apiKey: leontwitter
+accessToken: R_25886b1f07b64cd697d6c4ba5e27f437
+
 [twitter]
 appKey: 8ftdDOM0lkBod5vV5OK2Zk3r8
 appSecret: ILV3vEPpAXiKSPbHyBYAwJJEbPNzwDOGJ1pDYEYhRnMKYkkfCb
