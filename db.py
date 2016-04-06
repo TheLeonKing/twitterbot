@@ -69,7 +69,7 @@ def init():
 	addColumn(dbC['name'], 'tweets', 'tweet', 'VARCHAR(256)')
 	addColumn(dbC['name'], 'tweets', 'url', 'VARCHAR(256)')
 	addColumn(dbC['name'], 'tweets', 'bitly', 'VARCHAR(256)')
-	addColumn(dbC['name'], 'tweets', 'pic', 'INT(255)', 'UNSIGNED')
+	addColumn(dbC['name'], 'tweets', 'pic', 'VARCHAR(256)')
 	addColumn(dbC['name'], 'tweets', 'timestamp', 'TIMESTAMP', 'ON UPDATE CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP')
 
 	# Create retweets table.
