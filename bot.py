@@ -68,7 +68,7 @@ def keyword():
     ' Returns a random keyword. '
     return random.choice(keywords)
 
-def related():
+def relatedAcc():
     ' Returns a random related account. '
     return random.choice(relatedAccounts)
 
@@ -285,7 +285,7 @@ def followBack():
     '''
     followRelated(myHandle)
 
-def followRelated(handle=related()):
+def followRelated(handle=relatedAcc()):
     '''
     Takes a Twitter handle (`handle`), or randomly
     chooses a related account's handle.
