@@ -1,5 +1,6 @@
 [bot]
 handle: KarelAppel1234
+trending: True
 
 [db]
 host: vps263848.ovh.net
@@ -7,10 +8,6 @@ port: 3318
 user: root
 pass: k13f3rsutherland18
 name: testDB
-
-[proxies]
-http: 127.0.0.1:8888
-https: 127.0.0.1:8888
 
 [alchemy]
 apiKey: 131e9eacec5491cb6ece3046341be3be94a9d16d
