@@ -360,9 +360,9 @@ def main(sc):
     try:
         # Update keywords and related accounts once every hour.
         if currTime.minute == 0 and currTime.second < 4:
-            if trending: updateTrending()
-            keywords = fetchRelated('keywords')
-            relatedAccounts = fetchRelated('accounts')
+            if trending: related.updateTrending()
+            keywords = related.fetchRelated('keywords')
+            relatedAccounts = related.fetchRelated('accounts')
 
         # Update followers once per minute.
         if currTime.second == 10: updateFollowers()
@@ -377,7 +377,7 @@ def main(sc):
     sc.enter(1, 1, main, (sc, trending))
 
 if __name__ == '__main__':
-    if trending: updateTrending()
+    if trending: related.updateTrending()
     stdout.write('Now running...'), sys.stdout.flush() 
     s = sched.scheduler(time.time, time.sleep)
     s.enter(1, 1, main, (s,))

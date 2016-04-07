@@ -377,6 +377,7 @@ def main(sc):
     sc.enter(1, 1, main, (sc, trending))
 
 if __name__ == '__main__':
+    if trending: updateTrending()
     stdout.write('Now running...'), sys.stdout.flush() 
     s = sched.scheduler(time.time, time.sleep)
     s.enter(1, 1, main, (s,))
