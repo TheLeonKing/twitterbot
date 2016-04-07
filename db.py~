@@ -19,6 +19,7 @@ logging.basicConfig(filename='errors.log', level=logging.WARNING)
 myHandle = config.get('bot', 'handle')
 dbC = {
     'host': config.get('db', 'host'),
+    'port': config.get('db', 'port'),
     'user': config.get('db', 'user'),
     'pass': config.get('db', 'pass'),
     'name': config.get('db', 'name')
@@ -26,7 +27,7 @@ dbC = {
 
 
 def connect(db):
-    return MySQLdb.connect(dbC['host'], dbC['user'], dbC['pass'], db)
+    return MySQLdb.connect(dbC['host'], dbC['user'], dbC['pass'], db, port=dbC['port'])
 
 def executeQuery(query, values=(), db=dbC['name'], output=False):
     try:
@@ -38,7 +39,7 @@ def executeQuery(query, values=(), db=dbC['name'], output=False):
         logging.warning('DB:' + str(e))
 
 def createDb(db):
-    con = MySQLdb.connect(dbC['host'], dbC['user'], dbC['pass'])
+    con = MySQLdb.connect(dbC['host'], dbC['user'], dbC['pass'], port=dbC['port'])
     cursor = con.cursor()
     sql = 'CREATE DATABASE IF NOT EXISTS %s;' % db
     cursor.execute(sql)

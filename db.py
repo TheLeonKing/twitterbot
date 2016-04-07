@@ -19,7 +19,7 @@ logging.basicConfig(filename='errors.log', level=logging.WARNING)
 myHandle = config.get('bot', 'handle')
 dbC = {
     'host': config.get('db', 'host'),
-    'port': config.get('db', 'port'),
+    'port': int(config.get('db', 'port')),
     'user': config.get('db', 'user'),
     'pass': config.get('db', 'pass'),
     'name': config.get('db', 'name')
