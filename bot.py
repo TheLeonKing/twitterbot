@@ -374,7 +374,7 @@ def main(sc):
     except Exception as e:
         logging.warning('BOT:' + str(e))
         
-    sc.enter(1, 1, main, (sc, trending))
+    sc.enter(1, 1, main, (sc))
 
 if __name__ == '__main__':
     if trending: related.updateTrending()
