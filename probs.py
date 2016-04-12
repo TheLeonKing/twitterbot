@@ -76,8 +76,8 @@ def promptProb(probType):
     
     # Return user input if input is float or int.
     try:
-        int(perHour)
-        return (int(perHour)/3600.0)
+        int(perHour) or float(perHour)
+        return (float(perHour)/3600.0)
     # Show error and re-prompt if input is an integer.
     except ValueError as e:
         print 'Please enter an integer.'

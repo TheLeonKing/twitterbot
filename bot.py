@@ -50,7 +50,7 @@ twython = Twython(
 )
 
 # Set up the bad words list.
-badWords = set(line.strip('\n') for line in open('bad_words.txt'))\
+badWords = set(line.strip('\n') for line in open('bad_words.txt'))
 
 # Initialize related keywords + accounts and tweet + follow probabilities.
 keywords = related.fetchRelated('keywords')
@@ -122,7 +122,7 @@ def generateTweet(text, url, hashtag):
     
     # Split at space before `textlength` characters, return full tweet.
     text = textwrap.wrap(text, textlength)[0]
-    return ' '.join([text, hashtag, url_bitly]), url_bitly
+    return (' '.join([text, hashtag, url_bitly]), url_bitly)[0:140]
 
 
 def exists(col, val, table='tweets'):
