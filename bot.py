@@ -21,7 +21,7 @@ import textwrap
 import time
 import urllib
 
-from time import sleep, gmtime, strftime
+from time import sleep
 from StringIO import StringIO
 from sys import stdout
 from twython import Twython
@@ -32,7 +32,11 @@ config = ConfigParser.ConfigParser()
 config.read('config.ini')
 
 # Set up the error file.
-logging.basicConfig(filename='errors.log', level=logging.WARNING)
+logging.basicConfig(filename='errors.log',
+                    level=logging.WARNING
+                    format='%(asctime)s %(levelname)-8s %(message)s',
+                    datefmt='%a, %d %b %Y %H:%M:%S',
+                    filemode='w')
 
 # Set the bot's handle and find out if bot is in trending mode.
 myHandle = config.get('bot', 'handle')
@@ -102,11 +106,11 @@ def tweet(text, url=None, pic=None, hashtag=None):
         photo = (StringIO(urllib.urlopen(url).read()))
         response = twython.upload_media(media=photo)
         tweet = twython.update_status(status=tweet, media_ids=[response['media_id']])['text']
-        logging.warning('TWREQ tweet1 - BOT ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
+        logging.warning('BOT TWREQ tweet1')
     # If this tweet doesn't have a picture, post a general tweet.
     else:
         twython.update_status(status=tweet)
-        logging.warning('TWREQ tweet2 - BOT ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
+        logging.warning('BOT TWREQ tweet2')
     
     # Insert Tweet into database.
     insertTweet(tweet, url=url, bitly=url_bitly, pic=pic)
@@ -124,7 +128,8 @@ def generateTweet(text, url, hashtag):
     
     # Split at space before `textlength` characters, return full tweet.
     text = textwrap.wrap(text, textlength)[0]
-    return (' '.join([text, hashtag, url_bitly]), url_bitly)[0:140]
+    tweet = (' '.join([text, hashtag, url_bitly]), url_bitly)
+    return tweet if len(tweet) >= 140 else tweet[0:140]
 
 
 def exists(col, val, table='tweets'):
@@ -176,7 +181,7 @@ def retweet(keyword=keyword()):
     
     # Find the results matching the keyword.
     results = twython.search(q=keyword, lang='en')['statuses']
-    logging.warning('TWREQ retweet1 - BOT ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
+    logging.warning('BOT TWREQ retweet1')
     
     # Calculate a score for each tweet, based on the persons no. of followers and the tweet's no. of retweets.
     for tweet in results:
@@ -195,7 +200,7 @@ def retweet(keyword=keyword()):
         # Retweet the first tweet that satisfies all the requirements.
         if longTweet(tweet) and englishTweet(tweet) and positiveTweet(tweet) and notOffensive(tweet) and not exists('id', tweet['id'], 'retweets'):
             twython.retweet(id=tweet['id'])
-            logging.warning('TWREQ retweet2 - BOT ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
+            logging.warning('BOT TWREQ retweet2')
             insertRetweet(tweet['id'], tweet['text'], tweet['user']['screen_name'], tweet['user']['followers_count'], tweet['retweet_count'])
             print '\nRetweeted:', tweet['text']
             return None
@@ -242,7 +247,7 @@ def positiveTweet(tweet, attempt=0):
     # If Alchemy API request failed, try again after two seconds. Give up after more than 5 failed attempts.
     except Exception as e:
         print '\nError during sentiment analysis for tweet %s. Error: %s.' % (tweet['id'], e)
-        logging.warning('BOT positiveTweet ' + strftime("%a, %d %b %Y %X +0000", gmtime()) + ': ' + str(e))
+        logging.warning('BOT ERROR positiveTweet ' + str(e))
         sleep(2)
         return True if (attempt > 5) else positiveTweet(tweet, attempt+1)
 
@@ -255,7 +260,7 @@ def follow(uId, uHandle, followers, tweet=None, source=None):
     ' Follows a user and insert the follow interaction in the database. '
     uHandle = uHandle.encode('utf-8', 'ignore')
     twython.create_friendship(user_id=uId)
-    logging.warning('TWREQ follow - BOT ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
+    logging.warning('BOT TWREQ follow')
     insertFollow(uId, uHandle, followers, tweet, source)
     
     # Print feedback, based on whether the follow action was
@@ -266,7 +271,7 @@ def follow(uId, uHandle, followers, tweet=None, source=None):
 def followKeyword(keyword=keyword()):
     ' Follows a user based on a keyword. '
     results = twython.search(q=keyword, lang='en', count=10)
-    logging.warning('TWREQ followKeyword - BOT ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
+    logging.warning('BOT TWREQ followKeyword')
     try:
         for tweet in results['statuses']:
             try:
@@ -280,9 +285,9 @@ def followKeyword(keyword=keyword()):
                 follow(uId, uHandle, followers, tweet=tweet)
                 return None
             except Exception as e:
-                logging.warning('BOT followKeyword1 ' + strftime("%a, %d %b %Y %X +0000", gmtime()) + ': ' + str(e))
+                logging.warning('BOT ERROR followKeyword1: ' + str(e))
     except Exception as e:
-        logging.warning('BOT followKeyword2 ' + strftime("%a, %d %b %Y %X +0000", gmtime()) + ': ' + str(e))
+        logging.warning('BOT ERROR followKeyword2: ' + str(e))
 
 def followBack():
     '''
@@ -303,7 +308,7 @@ def followRelated(handle=relatedAcc()):
         # While the followers list contains more users (Twitter API has max of 200 users per request).
         while(nextCursor):
             results = twython.get_followers_list(screen_name=handle, count=200, cursor=nextCursor)
-            logging.warning('TWREQ followRelated - BOT ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
+            logging.warning('BOT TWREQ followRelated')
             
             # Follow the first user the bot is not already following.
             for user in results['users']:
@@ -316,7 +321,7 @@ def followRelated(handle=relatedAcc()):
         print '\nAlready followed everyone from account', handle
         return False
     except Exception as e:
-        logging.warning('BOT followRelated ' + strftime("%a, %d %b %Y %X +0000", gmtime()) + ': ' + str(e))
+        logging.warning('BOT ERROR followRelated: ' + str(e))
 
 def updateFollowers():
     ' Updates the database of people who follow the bot. '
@@ -325,7 +330,7 @@ def updateFollowers():
         # While the followers list contains more users (Twitter API has max of 200 users per request).
         while(nextCursor):
             results = twython.get_followers_list(screen_name=myHandle, count=200, cursor=nextCursor)
-            logging.warning('TWREQ updateFollowers - BOT ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
+            logging.warning('BOT TWREQ updateFollowers')
             
             # Only insert a user if (s)he is not already in the database.
             for user in results['users']:
@@ -336,25 +341,31 @@ def updateFollowers():
             nextCursor = results['next_cursor']
         return None
     except Exception as e:
-        logging.warning('BOT updateFollowers ' + strftime("%a, %d %b %Y %X +0000", gmtime()) + ': ' + str(e))
+        logging.warning('BOT ERROR updateFollowers: ' + str(e))
 
 def doTweet():    
     # Randomly execute an action according to the provided probabilities.
     c = np.random.choice(tweetProbs.keys(), 1, p=tweetProbs.values())[0]
-
-    if   c == 'skip'   : stdout.write('.'), sys.stdout.flush()
-    elif c == 'news'   : return tweetNews()
-    elif c == 'picture': return tweetPicture()
-    elif c == 'retweet': return retweet()
+    
+    try:
+        if   c == 'skip'   : stdout.write('.'), sys.stdout.flush()
+        elif c == 'news'   : return tweetNews()
+        elif c == 'picture': return tweetPicture()
+        elif c == 'retweet': return retweet()
+    except Exception as e:
+        logging.warning('BOT ERROR doTweet (c=' + str(c) + '): ' + str(e))
     
 def doFollow():    
     # Randomly execute an action according to the provided probabilities.
     c = np.random.choice(followProbs.keys(), 1, p=followProbs.values())[0]
-
-    if   c == 'skip'   : pass
-    elif c == 'keyword': return followKeyword()
-    elif c == 'back'   : return followBack()
-    elif c == 'related': return followRelated()
+    
+    try:
+        if   c == 'skip'   : pass
+        elif c == 'keyword': return followKeyword()
+        elif c == 'back'   : return followBack()
+        elif c == 'related': return followRelated()
+    except Exception as e:
+        logging.warning('BOT ERROR doFollow (c=' + str(c) + '): ' + str(e))
 
 
 #######################################
@@ -367,7 +378,7 @@ def main(sc):
     
     try:
         # Update keywords and related accounts once every hour.
-        if currTime.minute == 0 and currTime.second < 4:
+        if currTime.minute == 0 and currTime.second < 2:
             if trending: related.updateTrending()
             keywords = related.fetchRelated('keywords')
             relatedAccounts = related.fetchRelated('accounts')
@@ -380,7 +391,7 @@ def main(sc):
             doTweet()
             doFollow()
     except Exception as e:
-        logging.warning('BOT main ' + strftime("%a, %d %b %Y %X +0000", gmtime()) + ': ' + str(e))
+        logging.warning('BOT ERROR main: ' + str(e))
         
     sc.enter(1, 1, main, (sc,))
 

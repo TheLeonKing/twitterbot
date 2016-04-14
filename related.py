@@ -14,15 +14,17 @@ from collections import Counter
 from nltk.corpus import stopwords
 from twython import Twython
 
-from time import gmtime, strftime
-
 
 # Read the config file.
 config = ConfigParser.ConfigParser()
 config.read('config.ini')
 
 # Set up the error file.
-logging.basicConfig(filename='errors.log', level=logging.WARNING)
+logging.basicConfig(filename='errors.log',
+                    level=logging.WARNING
+                    format='%(asctime)s %(levelname)-8s %(message)s',
+                    datefmt='%a, %d %b %Y %H:%M:%S',
+                    filemode='w')
 
 # Set up the Twitter API.
 twython = Twython(
@@ -62,10 +64,10 @@ def matchingWords(keyword):
         try:
             if maxId:
                 results = twython.search(q=keyword, lang='en', max_id=maxId, count=100)
-                logging.warning('TWREQ matchingWords1 - RELATED ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
+                logging.warning('REL TWREQ matchingWords1')
             else:
                 results = twython.search(q=keyword, lang='en', count=100)
-                logging.warning('TWREQ matchingWords2 - RELATED ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
+                logging.warning('REL TWREQ matchingWords2')
             
             for tweet in results['statuses']:
                 if tweet['id'] not in seen:
@@ -74,7 +76,7 @@ def matchingWords(keyword):
                         words.append(word)
             maxId = int(seen[-1])-1 # -1 because max_id is inclusive.
         except Exception as e:
-            logging.warning('RELATED matchinWords ' + strftime("%a, %d %b %Y %X +0000", gmtime()) + str(e))
+            logging.warning('REL ERROR matchinWords: ' + str(e))
             return []
     
     return words
@@ -122,7 +124,7 @@ def findRelatedAccounts(keywords, accounts=[]):
     # and add them to the `related` dict.
     for keyword in keywords:
         results = twython.search_users(q=keyword, count=20)
-        logging.warning('TWREQ findRelatedAccounts - RELATED ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
+        logging.warning('REL TWREQ findRelatedAccounts')
         for user in results:
             # Only add accounts that are not yet in the database.
             if user['screen_name'] not in accounts:
@@ -249,7 +251,7 @@ def findTrendingTopics(woeId=23424977, n=10):
     Default: top 10 of United States.
     '''
     results = twython.get_place_trends(id=woeId)[0]
-    logging.warning('TWREQ findTrendingTopics - RELATED ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
+    logging.warning('REL TWREQ findTrendingTopics')
     return [trend['name'] for trend in results['trends'][:n]]
 
 if __name__ == '__main__':

@@ -7,15 +7,18 @@ import logging
 import MySQLdb
 import sys
 
-from time import gmtime, strftime
-
 
 # Read the config file.
 config = ConfigParser.ConfigParser()
 config.read('config.ini')
 
 # Set up the error file.
-logging.basicConfig(filename='errors.log', level=logging.WARNING)
+logging.basicConfig(filename='errors.log',
+                    level=logging.WARNING
+                    format='%(asctime)s %(levelname)-8s %(message)s',
+                    datefmt='%a, %d %b %Y %H:%M:%S',
+                    filemode='w')
+
 
 # Set the handle and database configuration.
 myHandle = config.get('bot', 'handle')
@@ -38,7 +41,7 @@ def executeQuery(query, values=(), db=dbC['name'], output=False):
         cursor.execute(query, values)
         if output: return cursor.fetchall()
     except Exception as e:
-        logging.warning('DB executeQuery ' + query + ' ' + strftime("%a, %d %b %Y %X +0000", gmtime()) + ':' + str(e))
+        logging.warning('DBX ERROR executeQuery (query=' + query + '):' + str(e))
 
 def createDb(db):
     con = MySQLdb.connect(dbC['host'], dbC['user'], dbC['pass'], port=dbC['port'])

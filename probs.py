@@ -3,10 +3,7 @@ Updates the probabilities.
 '''
 
 import db
-import logging
 import sys
-
-from time import gmtime, strftime
 
 
 def initProbs():
