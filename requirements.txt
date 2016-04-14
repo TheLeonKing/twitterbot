@@ -1,6 +1,6 @@
 bitly-api==0.3
+feedparser==5.2.1
 flickrapi==2.1.2
-gnp==0.0.4
 greenlet==0.4.9
 jsondatabase==0.1.1
 jsonschema==2.5.1

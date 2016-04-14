@@ -4,8 +4,8 @@ import bitly_api
 import db
 import ConfigParser
 import datetime
+import feedparser
 import flickrapi
-import gnp
 import logging
 import json
 import numpy as np
@@ -98,42 +98,39 @@ def insertFollower(uId, uHandle, followers):
     
 def tweet(text, url=None, pic=None, hashtag=None):
     ' Directly posts a (general) tweet. '
-    print 't1'
+    
     tweet, url_bitly = generateTweet(text, url, hashtag)
-    print 't2'
+    
     # If the tweet has a picture, upload it and post a media tweet.
     if pic:
-        print 't3.1'
         photo = (StringIO(urllib.urlopen(url).read()))
         response = twython.upload_media(media=photo)
         tweet = twython.update_status(status=tweet, media_ids=[response['media_id']])['text']
         logging.warning('BOT TWREQ tweet1')
     # If this tweet doesn't have a picture, post a general tweet.
     else:
-        print 't3.2'
         twython.update_status(status=tweet)
         logging.warning('BOT TWREQ tweet2')
-    print 't5'
     
     # Insert Tweet into database.
     insertTweet(tweet, url=url, bitly=url_bitly, pic=pic)
-    print 't6'
+
     return tweet
 
 def generateTweet(text, url, hashtag):
     """ Generates a tweet's text. """
-    print 't4.1'
+    
     # Shorten URL and set hashtag (if they are provided).
     url_bitly = bitly(url) if url else ''
     hashtag = '#' + re.sub('[^A-Za-z0-9]+', '',  hashtag) if hashtag else ''
     
     # Max text length is 140 - 25 (link length) - length hashtag - two whitespaces.
     textlength = 140 - 25 - len(hashtag) - 2
-    print 't4.2'
+    
     # Split at space before `textlength` characters, return full tweet.
-    text = textwrap.wrap(text, textlength)[0]
-    tweet = (' '.join([text, hashtag, url_bitly]), url_bitly)
-    print 't4.3'
+    text = textwrap.wrap(text.encode('utf-8', 'ignore'), textlength)[0]
+    tweet = (' '.join([text, hashtag, url_bitly]), url_bitly.encode('utf-8', 'ignore'))
+    
     return tweet if len(tweet) >= 140 else tweet[0:140]
 
 
@@ -152,12 +149,14 @@ def tweetNews(keyword=keyword()):
     ' Tweets a news article (based on a keyword). '
 
     # Fetch news articles matching our keyword.
-    results = gnp.get_google_news_query(keyword)
-
+    results = feedparser.parse('https://news.google.com/news/section?ned=us&output=rss&q=' + keyword)
+    
     # Tweet the first news article the bot hasn't tweeted about yet.
-    for story in results['stories']:
-        if not exists('url', story['link']):
-            print '\nTweeted (news):', tweet(story['title'].encode('utf-8', 'ignore'), url=story['link'], hashtag=keyword)
+    for entry in results.entries:
+        title = entry.title.encode('utf-8', 'ignore')
+        link = entry.link.split('url=', 1)[1].encode('utf-8', 'ignore')
+        if not exists('url', link):
+            print '\nTweeted (news):', tweet(title, url=link, hashtag=keyword)
             return None
 
 def tweetPicture(keyword=keyword(), page=1):
