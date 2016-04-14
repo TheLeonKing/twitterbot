@@ -33,7 +33,7 @@ config.read('config.ini')
 
 # Set up the error file.
 logging.basicConfig(filename='errors.log',
-                    level=logging.INFO,
+                    level=logging.WARNING,
                     format='%(asctime)s %(levelname)-8s %(message)s',
                     datefmt='%a, %d %b %Y %H:%M:%S',
                     filemode='w')
@@ -251,7 +251,7 @@ def positiveTweet(tweet, attempt=0):
     # If Alchemy API request failed, try again after two seconds. Give up after more than 5 failed attempts.
     except Exception as e:
         print '\nError during sentiment analysis for tweet %s. Error: %s.' % (tweet['id'], e)
-        logging.warning('BOT ERROR positiveTweet ' + str(e))
+        logging.error('BOT ERROR positiveTweet ' + str(e))
         sleep(2)
         return True if (attempt > 5) else positiveTweet(tweet, attempt+1)
 
@@ -289,9 +289,9 @@ def followKeyword(keyword=keyword()):
                 follow(uId, uHandle, followers, tweet=tweet)
                 return None
             except Exception as e:
-                logging.warning('BOT ERROR followKeyword1: ' + str(e))
+                logging.error('BOT ERROR followKeyword1: ' + str(e))
     except Exception as e:
-        logging.warning('BOT ERROR followKeyword2: ' + str(e))
+        logging.error('BOT ERROR followKeyword2: ' + str(e))
 
 def followBack():
     '''
@@ -325,7 +325,7 @@ def followRelated(handle=relatedAcc()):
         print '\nAlready followed everyone from account', handle
         return False
     except Exception as e:
-        logging.warning('BOT ERROR followRelated: ' + str(e))
+        logging.error('BOT ERROR followRelated: ' + str(e))
 
 def updateFollowers():
     ' Updates the database of people who follow the bot. '
@@ -345,7 +345,7 @@ def updateFollowers():
             nextCursor = results['next_cursor']
         return None
     except Exception as e:
-        logging.warning('BOT ERROR updateFollowers: ' + str(e))
+        logging.error('BOT ERROR updateFollowers: ' + str(e))
 
 def doTweet():    
     # Randomly execute an action according to the provided probabilities.
@@ -357,7 +357,7 @@ def doTweet():
         elif c == 'picture': return tweetPicture()
         elif c == 'retweet': return retweet()
     except Exception as e:
-        logging.warning('BOT ERROR doTweet (c=' + str(c) + '): ' + str(e))
+        logging.error('BOT ERROR doTweet (c=' + str(c) + '): ' + str(e))
     
 def doFollow():    
     # Randomly execute an action according to the provided probabilities.
@@ -369,7 +369,7 @@ def doFollow():
         elif c == 'back'   : return followBack()
         elif c == 'related': return followRelated()
     except Exception as e:
-        logging.warning('BOT ERROR doFollow (c=' + str(c) + '): ' + str(e))
+        logging.error('BOT ERROR doFollow (c=' + str(c) + '): ' + str(e))
 
 
 #######################################
@@ -395,7 +395,7 @@ def main(sc):
             doTweet()
             doFollow()
     except Exception as e:
-        logging.warning('BOT ERROR main: ' + str(e))
+        logging.error('BOT ERROR main: ' + str(e))
         
     sc.enter(1, 1, main, (sc,))
 

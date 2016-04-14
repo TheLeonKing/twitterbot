@@ -14,7 +14,7 @@ config.read('config.ini')
 
 # Set up the error file.
 logging.basicConfig(filename='errors.log',
-                    level=logging.INFO,
+                    level=logging.WARNING,
                     format='%(asctime)s %(levelname)-8s %(message)s',
                     datefmt='%a, %d %b %Y %H:%M:%S',
                     filemode='w')
@@ -41,7 +41,7 @@ def executeQuery(query, values=(), db=dbC['name'], output=False):
         cursor.execute(query, values)
         if output: return cursor.fetchall()
     except Exception as e:
-        logging.warning('DBX ERROR executeQuery (query=' + query + '):' + str(e))
+        logging.error('DBX ERROR executeQuery (query=' + query + '):' + str(e))
 
 def createDb(db):
     con = MySQLdb.connect(dbC['host'], dbC['user'], dbC['pass'], port=dbC['port'])
