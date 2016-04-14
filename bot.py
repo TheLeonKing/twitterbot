@@ -1,3 +1,4 @@
+# coding=utf-8
 ''' The Twitter bot script that constantly runs. '''
 
 import bitly_api
@@ -167,9 +168,10 @@ def tweetPicture(keyword=keyword(), page=1):
     
     # Loop through the results until we find a photo we haven't tweeted yet.
     for pic in results['photos']['photo']:
+        pic['id'] = pic['id'].encode('utf-8', 'ignore')
         if not exists('pic', pic['id']):
-            pic['url'] = flickr.photos.getSizes(photo_id=pic['id'])['sizes']['size'][6]['source']
-            print '\nTweeted (picture):', tweet(pic['title'].encode('utf-8', 'ignore'), url=pic['url'], pic=int(pic['id']), hashtag=keyword)
+            pic['url'] = flickr.photos.getSizes(photo_id=pic['id'])['sizes']['size'][6]['source'].encode('utf-8', 'ignore')
+            print '\nTweeted (picture):', tweet(pic['title'].encode('utf-8', 'ignore'), url=pic['url'], pic=pic['id'], hashtag=keyword)
             return None
     
     # If the loop ended, we've tweeted all pictures already --> recursively call the next page.
