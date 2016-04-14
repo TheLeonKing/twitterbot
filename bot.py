@@ -147,7 +147,7 @@ def tweetNews(keyword=keyword()):
     # Tweet the first news article the bot hasn't tweeted about yet.
     for story in results['stories']:
         if not exists('url', story['link']):
-            print '\nTweeted (news):', tweet(story['title'], url=story['link'], hashtag=keyword)
+            print '\nTweeted (news):', tweet(story['title'].encode('utf-8', 'ignore'), url=story['link'], hashtag=keyword)
             return None
 
 def tweetPicture(keyword=keyword(), page=1):
@@ -160,7 +160,7 @@ def tweetPicture(keyword=keyword(), page=1):
     for pic in results['photos']['photo']:
         if not exists('pic', pic['id']):
             pic['url'] = flickr.photos.getSizes(photo_id=pic['id'])['sizes']['size'][6]['source']
-            print '\nTweeted (picture):', tweet(pic['title'], url=pic['url'], pic=int(pic['id']), hashtag=keyword)
+            print '\nTweeted (picture):', tweet(pic['title'].encode('utf-8', 'ignore'), url=pic['url'], pic=int(pic['id']), hashtag=keyword)
             return None
     
     # If the loop ended, we've tweeted all pictures already --> recursively call the next page.
