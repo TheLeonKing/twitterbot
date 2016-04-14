@@ -32,7 +32,7 @@ def printProbs(mode):
     # Print the current probability values to the screen.
     print '\nThe following probability settings are currently set for ' + str(mode) + ':'
     for probType, probValue in currProbs.iteritems():
-        print probType, ' = ', probValue, '=', int(probValue*3600), 'times per hour'
+        print probType, ' = ', probValue, '=', round(probValue*3600, 2), 'times per hour'
 
 def updateProbs(mode):
     '''
