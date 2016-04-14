@@ -102,11 +102,11 @@ def tweet(text, url=None, pic=None, hashtag=None):
         photo = (StringIO(urllib.urlopen(url).read()))
         response = twython.upload_media(media=photo)
         tweet = twython.update_status(status=tweet, media_ids=[response['media_id']])['text']
-        logging.debug('TWREQ tweet1 - BOT ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
+        logging.warning('TWREQ tweet1 - BOT ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
     # If this tweet doesn't have a picture, post a general tweet.
     else:
         twython.update_status(status=tweet)
-        logging.debug('TWREQ tweet2 - BOT ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
+        logging.warning('TWREQ tweet2 - BOT ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
     
     # Insert Tweet into database.
     insertTweet(tweet, url=url, bitly=url_bitly, pic=pic)
@@ -176,7 +176,7 @@ def retweet(keyword=keyword()):
     
     # Find the results matching the keyword.
     results = twython.search(q=keyword, lang='en')['statuses']
-    logging.debug('TWREQ retweet1 - BOT ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
+    logging.warning('TWREQ retweet1 - BOT ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
     
     # Calculate a score for each tweet, based on the persons no. of followers and the tweet's no. of retweets.
     for tweet in results:
@@ -195,7 +195,7 @@ def retweet(keyword=keyword()):
         # Retweet the first tweet that satisfies all the requirements.
         if longTweet(tweet) and englishTweet(tweet) and positiveTweet(tweet) and notOffensive(tweet) and not exists('id', tweet['id'], 'retweets'):
             twython.retweet(id=tweet['id'])
-            logging.debug('TWREQ retweet2 - BOT ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
+            logging.warning('TWREQ retweet2 - BOT ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
             insertRetweet(tweet['id'], tweet['text'], tweet['user']['screen_name'], tweet['user']['followers_count'], tweet['retweet_count'])
             print '\nRetweeted:', tweet['text']
             return None
@@ -255,7 +255,7 @@ def follow(uId, uHandle, followers, tweet=None, source=None):
     ' Follows a user and insert the follow interaction in the database. '
     uHandle = uHandle.encode('utf-8', 'ignore')
     twython.create_friendship(user_id=uId)
-    logging.debug('TWREQ follow - BOT ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
+    logging.warning('TWREQ follow - BOT ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
     insertFollow(uId, uHandle, followers, tweet, source)
     
     # Print feedback, based on whether the follow action was
@@ -266,7 +266,7 @@ def follow(uId, uHandle, followers, tweet=None, source=None):
 def followKeyword(keyword=keyword()):
     ' Follows a user based on a keyword. '
     results = twython.search(q=keyword, lang='en', count=10)
-    logging.debug('TWREQ followKeyword - BOT ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
+    logging.warning('TWREQ followKeyword - BOT ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
     try:
         for tweet in results['statuses']:
             try:
@@ -303,7 +303,7 @@ def followRelated(handle=relatedAcc()):
         # While the followers list contains more users (Twitter API has max of 200 users per request).
         while(nextCursor):
             results = twython.get_followers_list(screen_name=handle, count=200, cursor=nextCursor)
-            logging.debug('TWREQ followRelated - BOT ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
+            logging.warning('TWREQ followRelated - BOT ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
             
             # Follow the first user the bot is not already following.
             for user in results['users']:
@@ -325,7 +325,7 @@ def updateFollowers():
         # While the followers list contains more users (Twitter API has max of 200 users per request).
         while(nextCursor):
             results = twython.get_followers_list(screen_name=myHandle, count=200, cursor=nextCursor)
-            logging.debug('TWREQ updateFollowers - BOT ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
+            logging.warning('TWREQ updateFollowers - BOT ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
             
             # Only insert a user if (s)he is not already in the database.
             for user in results['users']:
@@ -373,7 +373,7 @@ def main(sc):
             relatedAccounts = related.fetchRelated('accounts')
 
         # Update followers once per minute.
-        if currTime.second == 10: updateFollowers()
+        if currTime.second == 10 && currTime.minute % 10 == 0: updateFollowers()
 
         # Only show activity between 8:00 AM and 10:00 PM.
         if currTime.hour >= 8 and currTime.hour <= 22:
