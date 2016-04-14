@@ -384,7 +384,7 @@ def main(sc):
     
     try:
         # Update keywords and related accounts once every hour.
-        if currTime.minute == 0 and currTime.second < 2:
+        if currTime.hour == 0 and currTime.minute == 0 and currTime.second < 2:
             if trending: related.updateTrending()
             keywords = related.fetchRelated('keywords')
             relatedAccounts = related.fetchRelated('accounts')
