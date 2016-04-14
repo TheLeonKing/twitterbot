@@ -36,7 +36,7 @@ def executeQuery(query, values=(), db=dbC['name'], output=False):
         cursor.execute(query, values)
         if output: return cursor.fetchall()
     except Exception as e:
-        logging.warning('DB:' + str(e))
+        logging.warning('DB executeQuery ' + query + ':' + str(e))
 
 def createDb(db):
     con = MySQLdb.connect(dbC['host'], dbC['user'], dbC['pass'], port=dbC['port'])

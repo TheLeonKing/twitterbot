@@ -58,8 +58,12 @@ def matchingWords(keyword):
     maxId = None
     while(len(seen) < 500):
         try:
-            if maxId: results = twython.search(q=keyword, lang='en', max_id=maxId, count=100)
-            else: results = twython.search(q=keyword, lang='en', count=100)
+            if maxId:
+                results = twython.search(q=keyword, lang='en', max_id=maxId, count=100)
+                logging.debug('TWREQ matchingWords1 - RELATED ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
+            else:
+                results = twython.search(q=keyword, lang='en', count=100)
+                logging.debug('TWREQ matchingWords2 - RELATED ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
             
             for tweet in results['statuses']:
                 if tweet['id'] not in seen:
@@ -116,6 +120,7 @@ def findRelatedAccounts(keywords, accounts=[]):
     # and add them to the `related` dict.
     for keyword in keywords:
         results = twython.search_users(q=keyword, count=20)
+        logging.debug('TWREQ findRelatedAccounts - RELATED ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
         for user in results:
             # Only add accounts that are not yet in the database.
             if user['screen_name'] not in accounts:
@@ -242,6 +247,7 @@ def findTrendingTopics(woeId=23424977, n=10):
     Default: top 10 of United States.
     '''
     results = twython.get_place_trends(id=woeId)[0]
+    logging.debug('TWREQ findTrendingTopics - RELATED ' + strftime("%a, %d %b %Y %X +0000", gmtime()))
     return [trend['name'] for trend in results['trends'][:n]]
 
 if __name__ == '__main__':
