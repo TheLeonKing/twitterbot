@@ -72,11 +72,11 @@ def promptProb(probType):
     Returns this value, or re-prompts if value is invalid.
     '''
     perHour = raw_input('How many times per hour should "' + str(probType) + '" be executed? ')
-    
+
     # Return user input if input is float or int.
     try:
-        int(perHour) or float(perHour)
-        return (float(perHour)/3600.0))
+        float(perHour) or int(perHour)
+        return (float(perHour)/3600.0)
     # Show error and re-prompt if input is an integer.
     except ValueError as e:
         print 'Please enter an integer.'
