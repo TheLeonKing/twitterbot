@@ -14,6 +14,8 @@ from collections import Counter
 from nltk.corpus import stopwords
 from twython import Twython
 
+from time import gmtime, strftime
+
 
 # Read the config file.
 config = ConfigParser.ConfigParser()
@@ -72,7 +74,7 @@ def matchingWords(keyword):
                         words.append(word)
             maxId = int(seen[-1])-1 # -1 because max_id is inclusive.
         except Exception as e:
-            logging.warning('RELATED:' + str(e))
+            logging.warning('RELATED matchinWords ' + strftime("%a, %d %b %Y %X +0000", gmtime()) + str(e))
             return []
     
     return words

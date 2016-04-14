@@ -7,6 +7,8 @@ import logging
 import MySQLdb
 import sys
 
+from time import gmtime, strftime
+
 
 # Read the config file.
 config = ConfigParser.ConfigParser()
@@ -36,7 +38,7 @@ def executeQuery(query, values=(), db=dbC['name'], output=False):
         cursor.execute(query, values)
         if output: return cursor.fetchall()
     except Exception as e:
-        logging.warning('DB executeQuery ' + query + ':' + str(e))
+        logging.warning('DB executeQuery ' + query + ' ' + strftime("%a, %d %b %Y %X +0000", gmtime()) + ':' + str(e))
 
 def createDb(db):
     con = MySQLdb.connect(dbC['host'], dbC['user'], dbC['pass'], port=dbC['port'])

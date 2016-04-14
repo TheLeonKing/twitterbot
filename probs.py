@@ -6,6 +6,8 @@ import db
 import logging
 import sys
 
+from time import gmtime, strftime
+
 
 def initProbs():
     tweetProbs = { 'news' : 0, 'picture' : 0, 'retweet' : 0, 'skip' : 1 }
