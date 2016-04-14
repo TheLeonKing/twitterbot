@@ -98,37 +98,42 @@ def insertFollower(uId, uHandle, followers):
     
 def tweet(text, url=None, pic=None, hashtag=None):
     ' Directly posts a (general) tweet. '
-    
+    print 't1'
     tweet, url_bitly = generateTweet(text, url, hashtag)
-    
+    print 't2'
     # If the tweet has a picture, upload it and post a media tweet.
     if pic:
+        print 't3.1'
         photo = (StringIO(urllib.urlopen(url).read()))
         response = twython.upload_media(media=photo)
         tweet = twython.update_status(status=tweet, media_ids=[response['media_id']])['text']
         logging.warning('BOT TWREQ tweet1')
     # If this tweet doesn't have a picture, post a general tweet.
     else:
+        print 't3.2'
         twython.update_status(status=tweet)
         logging.warning('BOT TWREQ tweet2')
+    print 't5'
     
     # Insert Tweet into database.
     insertTweet(tweet, url=url, bitly=url_bitly, pic=pic)
-    
+    print 't6'
     return tweet
 
 def generateTweet(text, url, hashtag):
     """ Generates a tweet's text. """
+    print 't4.1'
     # Shorten URL and set hashtag (if they are provided).
     url_bitly = bitly(url) if url else ''
     hashtag = '#' + re.sub('[^A-Za-z0-9]+', '',  hashtag) if hashtag else ''
     
     # Max text length is 140 - 25 (link length) - length hashtag - two whitespaces.
     textlength = 140 - 25 - len(hashtag) - 2
-    
+    print 't4.2'
     # Split at space before `textlength` characters, return full tweet.
     text = textwrap.wrap(text, textlength)[0]
     tweet = (' '.join([text, hashtag, url_bitly]), url_bitly)
+    print 't4.3'
     return tweet if len(tweet) >= 140 else tweet[0:140]
 
 
@@ -145,10 +150,10 @@ def exists(col, val, table='tweets'):
 
 def tweetNews(keyword=keyword()):
     ' Tweets a news article (based on a keyword). '
-    
+
     # Fetch news articles matching our keyword.
     results = gnp.get_google_news_query(keyword)
-    
+
     # Tweet the first news article the bot hasn't tweeted about yet.
     for story in results['stories']:
         if not exists('url', story['link']):
