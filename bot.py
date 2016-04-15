@@ -413,7 +413,7 @@ def main(sc):
             keywords = related.fetchRelated('keywords')
             relatedAccounts = related.fetchRelated('accounts')
 
-        # Update followers once per minute.
+        # Update followers once every ten minutes.
         if currTime.second == 10 and currTime.minute % 10 == 0: updateFollowers()
 
         # Only show activity between 8:00 AM and 10:00 PM.
