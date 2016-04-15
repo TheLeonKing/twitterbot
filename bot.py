@@ -129,8 +129,8 @@ def generateTweet(text, url, hashtag):
     textlength = 140 - 25 - len(hashtag) - 2
     
     # Split at space before `textlength` characters, return full tweet.
-    text = textwrap.wrap(text.encode('utf-8', 'ignore'), textlength)[0]
-    tweet = (' '.join([text, hashtag, url_bitly]), url_bitly.encode('utf-8', 'ignore'))
+    text = textwrap.wrap(text.decode('utf-8', 'ignore'), textlength)[0]
+    tweet = (' '.join([text, hashtag]), url_bitly.decode('utf-8', 'ignore'))
     
     return tweet if len(tweet) >= 140 else tweet[0:140]
 
@@ -154,8 +154,8 @@ def tweetNews(keyword=keyword()):
     
     # Tweet the first news article the bot hasn't tweeted about yet.
     for entry in results.entries:
-        title = entry.title.encode('utf-8', 'ignore')
-        link = entry.link.split('url=', 1)[1].encode('utf-8', 'ignore')
+        title = entry.title.decode('utf-8', 'ignore')
+        link = entry.link.split('url=', 1)[1].decode('utf-8', 'ignore')
         if not exists('url', link):
             print '\nTweeted (news):', tweet(title, url=link, hashtag=keyword)
             return None
@@ -168,10 +168,10 @@ def tweetPicture(keyword=keyword(), page=1):
     
     # Loop through the results until we find a photo we haven't tweeted yet.
     for pic in results['photos']['photo']:
-        pic['id'] = pic['id'].encode('utf-8', 'ignore')
+        pic['id'] = pic['id'].decode('utf-8', 'ignore')
         if not exists('pic', pic['id']):
-            pic['url'] = flickr.photos.getSizes(photo_id=pic['id'])['sizes']['size'][6]['source'].encode('utf-8', 'ignore')
-            print '\nTweeted (picture):', tweet(pic['title'].encode('utf-8', 'ignore'), url=pic['url'], pic=pic['id'], hashtag=keyword)
+            pic['url'] = flickr.photos.getSizes(photo_id=pic['id'])['sizes']['size'][6]['source'].decode('utf-8', 'ignore')
+            print '\nTweeted (picture):', tweet(pic['title'].decode('utf-8', 'ignore'), url=pic['url'], pic=pic['id'], hashtag=keyword)
             return None
     
     # If the loop ended, we've tweeted all pictures already --> recursively call the next page.
@@ -199,9 +199,9 @@ def retweet(keyword=keyword()):
     results = sorted(results, key=lambda k: k['score'], reverse=True)
     
     for tweet in results:
-        # Correctly encode the tweet and screen name.
-        tweet['text'] = tweet['text'].encode('utf-8', 'ignore')
-        tweet['user']['screen_name'] = tweet['user']['screen_name'].encode('utf-8', 'ignore')
+        # Correctly decode the tweet and screen name.
+        tweet['text'] = tweet['text'].decode('utf-8', 'ignore')
+        tweet['user']['screen_name'] = tweet['user']['screen_name'].decode('utf-8', 'ignore')
         
         # Retweet the first tweet that satisfies all the requirements.
         if longTweet(tweet) and englishTweet(tweet) and positiveTweet(tweet) and notOffensive(tweet) and not exists('id', tweet['id'], 'retweets'):
@@ -246,7 +246,7 @@ def positiveTweet(tweet, attempt=0):
     
     # Perform Alchemy API request. Return True if sentiment is positive (and False otherwise).
     try:
-        results = requests.get(url=alchemyUrl, params=urllib.urlencode(parameters))
+        results = requests.get(url=alchemyUrl, params=urllib.urldecode(parameters))
         response = results.json()
         return True if (response['docSentiment']['type'] == 'positive') else False
 
@@ -264,7 +264,7 @@ def positiveTweet(tweet, attempt=0):
 
 def follow(uId, uHandle, followers, tweet=None, source=None):
     ' Follows a user and insert the follow interaction in the database. '
-    uHandle = uHandle.encode('utf-8', 'ignore')
+    uHandle = uHandle.decode('utf-8', 'ignore')
     twython.create_friendship(user_id=uId)
     logging.warning('BOT TWREQ follow')
     insertFollow(uId, uHandle, followers, tweet, source)
@@ -283,9 +283,9 @@ def followKeyword(keyword=keyword()):
             try:
                 # Extract necessary information about tweet and user.
                 uId = int(tweet['user']['id'])
-                uHandle = tweet['user']['screen_name'].encode('utf-8', 'ignore')
+                uHandle = tweet['user']['screen_name'].decode('utf-8', 'ignore')
                 followers = tweet['user']['followers_count']
-                tweet = tweet['text'].encode('utf-8', 'ignore')
+                tweet = tweet['text'].decode('utf-8', 'ignore')
                 
                 # Follow user and insert follow interaction in database.
                 follow(uId, uHandle, followers, tweet=tweet)
@@ -341,7 +341,7 @@ def updateFollowers():
             # Only insert a user if (s)he is not already in the database.
             for user in results['users']:
                 if not exists('user_id', user['id'], 'followers'):
-                    user['screen_name'] = user['screen_name'].encode('utf-8', 'ignore')
+                    user['screen_name'] = user['screen_name'].decode('utf-8', 'ignore')
                     insertFollower(user['id'], user['screen_name'], user['followers_count'])
                     print '\nAdded follower to database:', user['screen_name']
             nextCursor = results['next_cursor']
