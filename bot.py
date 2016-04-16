@@ -134,9 +134,9 @@ def generateTweet(text, url, hashtag):
     except:
         text = text.encode('utf-8', 'ignore')
     text = textwrap.wrap(text, textlength)[0]
-    tweet = (' '.join([text, hashtag]), url_bitly)
+    tweet = ' '.join([text, hashtag, url_bitly])
     
-    return tweet if len(tweet) >= 140 else tweet[0:140]
+    return tweet if len(tweet) <= 140 else tweet[0:140]
 
 
 def exists(col, val, table='tweets'):
@@ -153,8 +153,6 @@ def exists(col, val, table='tweets'):
 def tweetNews(keyword=rKeyword()):
     ' Tweets a news article (based on a keyword). '
 
-    keyword = rKeyword()
-
     # Fetch news articles matching our keyword.
     results = feedparser.parse('https://news.google.com/news/section?ned=us&output=rss&q=' + keyword)
     
@@ -166,6 +164,14 @@ def tweetNews(keyword=rKeyword()):
         except:
             title = (entry.title).encode('utf-8', 'ignore')
             link = (entry.link.split('url=', 1)[1]).encode('utf-8', 'ignore')
+        
+
+        try:
+            title = title.split(' -')
+            del title[-1]
+            title = ' '.join(title)
+        except:
+            pass
 
         if not exists('url', link):
             print '\nTweeted (news):', tweet(title, url=link, hashtag=keyword)
@@ -173,8 +179,6 @@ def tweetNews(keyword=rKeyword()):
 
 def tweetPicture(keyword=rKeyword(), page=1):
     ' Tweet a picture (based on a keyword). '
-
-    keyword = rKeyword()
     
     # Find the first 100 results matching our keyword.
     results = flickr.photos.search(text=keyword, safe_search=1, content_type=1, page=1)
@@ -203,8 +207,6 @@ def retweet(keyword=rKeyword()):
     English; (3) positive; (4) not offensive (no swear words);
     and (5) if the bot hasn't already retweeted it.
     '''
-
-    keyword = rKeyword()
     
     # Find the results matching the keyword.
     results = twython.search(q=keyword, lang='en')['statuses']
