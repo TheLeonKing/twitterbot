@@ -36,6 +36,12 @@ def connect(db):
 
 def executeQuery(query, values=(), db=dbC['name'], output=False):
     try:
+        query = query.encode('latin-1', 'ignore')
+        for i, val in values:
+            try:
+                val[i] = val[i].encode('latin-1', 'ignore')
+            except:
+                pass
         db = connect(db)
         cursor = db.cursor()
         cursor.execute(query, values)
