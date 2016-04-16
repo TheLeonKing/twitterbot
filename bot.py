@@ -136,7 +136,7 @@ def generateTweet(text, url, hashtag):
     text = textwrap.wrap(text, textlength)[0]
     tweet = ' '.join([text, hashtag, url_bitly])
     
-    return tweet if len(tweet) <= 140 else tweet[0:140]
+    return (tweet, url_bitly) if len(tweet) <= 140 else (tweet[0:140], url_bilty)
 
 
 def exists(col, val, table='tweets'):
