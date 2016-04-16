@@ -153,6 +153,8 @@ def exists(col, val, table='tweets'):
 def tweetNews(keyword=keyword()):
     ' Tweets a news article (based on a keyword). '
 
+    keyword = keyword()
+
     # Fetch news articles matching our keyword.
     results = feedparser.parse('https://news.google.com/news/section?ned=us&output=rss&q=' + keyword)
     
@@ -171,6 +173,8 @@ def tweetNews(keyword=keyword()):
 
 def tweetPicture(keyword=keyword(), page=1):
     ' Tweet a picture (based on a keyword). '
+
+    keyword = keyword()
     
     # Find the first 100 results matching our keyword.
     results = flickr.photos.search(text=keyword, safe_search=1, content_type=1, page=1)
@@ -199,6 +203,8 @@ def retweet(keyword=keyword()):
     English; (3) positive; (4) not offensive (no swear words);
     and (5) if the bot hasn't already retweeted it.
     '''
+
+    keyword = keyword()
     
     # Find the results matching the keyword.
     results = twython.search(q=keyword, lang='en')['statuses']
