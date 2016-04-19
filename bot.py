@@ -256,6 +256,7 @@ def retweet(keyword=rKeyword()):
     
     # If no suitable tweets were found, show an error.
     print "\nCouldn't find suitable tweets."
+    logging.error('BOT ERROR retweet3 No suitable tweets for keyword ' + str(keyword))
     return None
 
 def longTweet(tweet):
