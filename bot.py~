@@ -377,10 +377,6 @@ def followRelated(handle=relatedAcc()):
     except Exception as e:
         logging.error('BOT ERROR followRelated: ' + str(e))
 
-def unfollow():
-    " Unfollows the oldest following user that doesn't follow the bot back. "
-    print db.executeQuery('SELECT * FROM follows WHERE active = 1 LIMIT 1', output=True)
-
 def updateFollowers():
     ' Updates the database of people who follow the bot. '
     nextCursor = -1
