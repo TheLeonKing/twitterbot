@@ -8,7 +8,7 @@ import sys
 
 def initProbs():
     tweetProbs = { 'news' : 0, 'picture' : 0, 'retweet' : 0, 'skip' : 1 }
-    followProbs = { 'keyword' : 0, 'back' : 0, 'related' : 0, 'skip' : 1 }
+    followProbs = { 'keyword' : 0, 'back' : 0, 'related' : 0, 'unfollow': 0, 'skip' : 1 }
     for tType, tProb in tweetProbs.iteritems():
         db.executeQuery('INSERT IGNORE INTO tweet_probs (tweet_type, tweet_prob) VALUES (%s, %s);', values=(tType, tProb))
     for fType, fProb in followProbs.iteritems():

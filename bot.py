@@ -317,7 +317,7 @@ def follow(uId, uHandle, followers, tweet=None, source=None):
     if tweet: print '\nFollowed (keyword)', uHandle, '(', tweet, ')'
     elif source: print '\nFollowed (source)', uHandle, '(', source, ')'
 
-def followrKeyword(keyword=rKeyword()):
+def followKeyword(keyword=rKeyword()):
     ' Follows a user based on a keyword. '
     results = twython.search(q=keyword, lang='en', count=10)
     logging.warning('BOT TWREQ followKeyword')
@@ -379,7 +379,28 @@ def followRelated(handle=relatedAcc()):
 
 def unfollow():
     " Unfollows the oldest following user that doesn't follow the bot back. "
-    print db.executeQuery('SELECT * FROM follows WHERE active = 1 LIMIT 1', output=True)
+    
+    # Find first user the bot is following.
+    try:
+        uId = db.executeQuery('SELECT user_id FROM follows WHERE active = 1 LIMIT 1', output=True)[0][0]
+    except Exception as e:
+        print "\nCouldn't find any suitable users to unfollow."
+        return None
+    
+    # If user is following the bot, set active = 2 to prevent him from being unfollowed.
+    if not exists('user_id', uId, 'followers'):
+        db.executeQuery('UPDATE follows SET active = 2 WHERE user_id = %s', (uId,))
+        return unfollow()
+    
+    # If user is not following the bot, unfollow him.
+    try:
+        twython.destroy_friendship(user_id=uId)
+        print '\nUnfollowed user with ID ' + str(uId)
+    except Exception as e:
+        logging.error('BOT ERROR unfollow: ' + str(e))
+    
+    # Set active = 0 to indicate unfollow.
+    db.executeQuery('UPDATE follows SET active = 0 WHERE user_id = %s', (uId,))
 
 def updateFollowers():
     ' Updates the database of people who follow the bot. '
@@ -418,10 +439,11 @@ def doFollow():
     c = np.random.choice(followProbs.keys(), 1, p=followProbs.values())[0]
     
     try:
-        if   c == 'skip'   : pass
-        elif c == 'keyword': return followrKeyword()
-        elif c == 'back'   : return followBack()
-        elif c == 'related': return followRelated()
+        if   c == 'skip'    : pass
+        elif c == 'keyword' : return followKeyword()
+        elif c == 'back'    : return followBack()
+        elif c == 'related' : return followRelated()
+        elif c == 'unfollow': return unfollow()
     except Exception as e:
         logging.error('BOT ERROR doFollow (c=' + str(c) + '): ' + str(e))
 
