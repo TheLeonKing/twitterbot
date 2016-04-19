@@ -254,10 +254,9 @@ def retweet(keyword=rKeyword()):
             print '\nRetweeted:', tweet['text']
             return None
     
-    # If no suitable tweets were found, try again in 60 seconds.
-    print "\nCouldn't find suitable tweets. Trying again in a minute..."
-    sleep(60)
-    return retweet(keyword)
+    # If no suitable tweets were found, show an error.
+    print "\nCouldn't find suitable tweets."
+    return None
 
 def longTweet(tweet):
     ' Checks if a tweet is longer than 70 characters. '
