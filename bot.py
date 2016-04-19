@@ -100,7 +100,7 @@ def insertFollower(uId, uHandle, followers):
 def tweet(text, url=None, pic=None, hashtag=None):
     ' Directly posts a (general) tweet. '
     logging.warning('debug1')
-    tweet, url_bitly = generateTweet(text, url, hashtag)
+    tweet, url_bitly = generateTweet(text, url, hashtag, pic)
     
     # If the tweet has a picture, upload it and post a media tweet.
     if pic:
@@ -120,12 +120,12 @@ def tweet(text, url=None, pic=None, hashtag=None):
 
     return tweet
 
-def generateTweet(text, url, hashtag):
+def generateTweet(text, url, hashtag, pic):
     """ Generates a tweet's text. """
     
     logging.warning('debug2.1')
     # Shorten URL and set hashtag (if they are provided).
-    url_bitly = bitly(url) if url else ''
+    url_bitly = bitly(url) if url and not pic else ''
     hashtag = '#' + re.sub('[^A-Za-z0-9]+', '',  hashtag) if hashtag else ''
     
     logging.warning('debug2.2')
