@@ -167,6 +167,7 @@ def tweetNews(keyword=rKeyword()):
     
     # Tweet the first news article the bot hasn't tweeted about yet.
     for entry in results.entries:
+        logging.warning('debug0 ' + str(entry.title) + ' ' + str(entry.link))
         title = unidecode((entry.title).decode('utf-8', 'ignore'))
         link = unidecode((entry.link.split('url=', 1)[1]).decode('utf-8', 'ignore'))
         
