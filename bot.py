@@ -457,11 +457,6 @@ def main(sc):
         logging.error('BOT ERROR main: ' + str(e))
         
     sc.enter(1, 1, main, (sc,))
-    
-def force(command):
-    elif c == 'news'   : return tweetNews()
-        elif c == 'picture': return tweetPicture()
-        elif c == 'retweet': return retweet()
 
 if __name__ == '__main__':
     if len(sys.argv) > 2 and sys.argv[1] == 'tweet': doTweet(sys.argv[2])
