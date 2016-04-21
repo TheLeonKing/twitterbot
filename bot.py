@@ -22,10 +22,11 @@ import textwrap
 import time
 import urllib
 
-from time import sleep
 from StringIO import StringIO
 from sys import stdout
+from time import sleep
 from twython import Twython
+from unidecode import unidecode
 
 
 # Read the config file.
@@ -134,10 +135,7 @@ def generateTweet(text, url, hashtag, pic):
     
     logging.warning('debug2.3')
     # Split at space before `textlength` characters, return full tweet.
-    try:
-        text = unicode(text, 'utf-8', 'replace')
-    except:
-        text = text.encode('utf-8', 'ignore')
+    text = unidecode(text.decode('utf-8', 'ignore'))
 
     logging.warning('debug2.4')
     text = textwrap.wrap(text, textlength)[0]
@@ -169,12 +167,8 @@ def tweetNews(keyword=rKeyword()):
     
     # Tweet the first news article the bot hasn't tweeted about yet.
     for entry in results.entries:
-        try:
-            title = unicode(entry.title, 'utf-8', 'replace')
-            link = unicode(entry.link.split('url=', 1)[1])
-        except:
-            title = (entry.title).encode('utf-8', 'ignore')
-            link = (entry.link.split('url=', 1)[1]).encode('utf-8', 'ignore')
+        title = unidecode((entry.title).decode('utf-8', 'ignore'))
+        link = unidecode((entry.link.split('url=', 1)[1]).decode('utf-8', 'ignore'))
         
 
         try:
@@ -199,16 +193,12 @@ def tweetPicture(keyword=rKeyword(), page=1):
     for pic in results['photos']['photo']:
 
         logging.warning('debug0.2')
-        pic['id'] = pic['id'].encode('utf-8', 'replace')
+        pic['id'] = unidecode(pic['id'].decode('utf-8', 'ignore'))
         if not exists('pic', pic['id']):
             
             logging.warning('debug0.3')
-            try:
-                pic['title'] = unicode(pic['title'], 'utf-8', 'replace')
-                pic['url'] = unicode(flickr.photos.getSizes(photo_id=pic['id'])['sizes']['size'][6]['source'], 'utf-8', 'replace')
-            except:
-                pic['title'] = pic['title'].encode('utf-8', 'ignore')
-                pic['url'] = flickr.photos.getSizes(photo_id=pic['id'])['sizes']['size'][6]['source'].encode('utf-8', 'ignore')
+            pic['title'] = unidecode(pic['title'].decode('utf-8', 'ignore'))
+            pic['url'] = unidecode(flickr.photos.getSizes(photo_id=pic['id'])['sizes']['size'][6]['source'].decode('utf-8', 'ignore'))
             
             logging.warning('debug0.4')
             print '\nTweeted (picture):', tweet(pic['title'], url=pic['url'], pic=pic['id'], hashtag=keyword)
@@ -239,13 +229,9 @@ def retweet(keyword=rKeyword()):
     results = sorted(results, key=lambda k: k['score'], reverse=True)
     
     for tweet in results:
-        # Correctly encode the tweet and screen name.
-        try:
-            tweet['text'] = unicode(tweet['text'], 'utf-8', 'replace')
-            tweet['user']['screen_name'] = unicode(tweet['user']['screen_name'], 'utf-8', 'replace')
-        except:
-            tweet['text'] = tweet['text'].encode('utf-8', 'ignore')
-            tweet['user']['screen_name'] = tweet['user']['screen_name'].encode('utf-8', 'ignore')
+        # Correctly decode the tweet and screen name.
+        tweet['text'] = unidecode(tweet['text'].decode('utf-8', 'ignore'))
+        tweet['user']['screen_name'] = unidecode(tweet['user']['screen_name'].decode('utf-8', 'ignore'))
         
         # Retweet the first tweet that satisfies all the requirements.
         if longTweet(tweet) and englishTweet(tweet) and positiveTweet(tweet) and notOffensive(tweet) and not exists('id', tweet['id'], 'retweets'):
@@ -308,7 +294,7 @@ def positiveTweet(tweet, attempt=0):
 
 def follow(uId, uHandle, followers, tweet=None, source=None):
     ' Follows a user and insert the follow interaction in the database. '
-    uHandle = uHandle.encode('utf-8', 'replace')
+    uHandle = unidecode(uHandle.decode('utf-8', 'ignore'))
     twython.create_friendship(user_id=uId)
     logging.warning('BOT TWREQ follow')
     insertFollow(uId, uHandle, followers, tweet, source)
@@ -328,13 +314,8 @@ def followKeyword(keyword=rKeyword()):
                 # Extract necessary information about tweet and user.
                 uId = int(tweet['user']['id'])
                 followers = tweet['user']['followers_count']
-
-                try:
-                    uHandle = unicode(tweet['user']['screen_name'], 'utf-8', 'replace')
-                    tweet = unicode(tweet['text'], 'utf-8', 'replace')
-                except:
-                    uHandle = tweet['user']['screen_name'].encode('utf-8', 'replace')
-                    tweet = tweet['text'].encode('utf-8', 'replace')
+                uHandle = unidecode(tweet['user']['screen_name'].decode('utf-8', 'ignore'))
+                tweet = unidecode(tweet['text'].decode('utf-8', 'ignore'))
                 
                 # Follow user and insert follow interaction in database.
                 follow(uId, uHandle, followers, tweet=tweet)
@@ -415,7 +396,7 @@ def updateFollowers():
             # Only insert a user if (s)he is not already in the database.
             for user in results['users']:
                 if not exists('user_id', user['id'], 'followers'):
-                    user['screen_name'] = user['screen_name'].encode('utf-8', 'replace')
+                    user['screen_name'] = unidecode(user['screen_name'].decode('utf-8', 'ignore'))
                     insertFollower(user['id'], user['screen_name'], user['followers_count'])
                     print '\nAdded follower to database:', user['screen_name']
             nextCursor = results['next_cursor']

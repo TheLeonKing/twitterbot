@@ -7,6 +7,8 @@ import logging
 import MySQLdb
 import sys
 
+from unidecode import unidecode
+
 
 # Read the config file.
 config = ConfigParser.ConfigParser()
@@ -36,12 +38,11 @@ def connect(db):
 
 def executeQuery(query, values=(), db=dbC['name'], output=False):
     try:
-        query = query.encode('latin-1', 'ignore')
         for i, val in enumerate(values):
             try:
-                val[i] = val[i].encode('latin-1', 'ignore')
+                val[i] = unidecode(val[i].decode('latin-1', 'ignore'))
             except:
-                pass
+                logging.warning('DBX ERROR executeQuery latin-1 encoding failed for', val[i])
         db = connect(db)
         cursor = db.cursor()
         cursor.execute(query, values)
