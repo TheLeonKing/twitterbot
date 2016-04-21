@@ -194,10 +194,13 @@ def tweetPicture(keyword=rKeyword(), page=1):
     for pic in results['photos']['photo']:
 
         logging.warning('debug0.2')
+        logging.warning('debug0.25 ' + str(pic['id']))
         pic['id'] = unidecode(pic['id'].decode('utf-8', 'ignore'))
         if not exists('pic', pic['id']):
             
             logging.warning('debug0.3')
+            logging.warning('debug0.35 ' + str(pic['title']) + ' ' + str(pic['url']))
+            
             pic['title'] = unidecode(pic['title'].decode('utf-8', 'ignore'))
             pic['url'] = unidecode(flickr.photos.getSizes(photo_id=pic['id'])['sizes']['size'][6]['source'].decode('utf-8', 'ignore'))
             
@@ -231,6 +234,7 @@ def retweet(keyword=rKeyword()):
     
     for tweet in results:
         # Correctly decode the tweet and screen name.
+        logging.warning('debugX ' + str(tweet['text']) + ' ' + str(tweet['user']['screen_name']))
         tweet['text'] = unidecode(tweet['text'].decode('utf-8', 'ignore'))
         tweet['user']['screen_name'] = unidecode(tweet['user']['screen_name'].decode('utf-8', 'ignore'))
         

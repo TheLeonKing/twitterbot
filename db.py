@@ -42,7 +42,7 @@ def executeQuery(query, values=(), db=dbC['name'], output=False):
             values = list(values)
             for i, val in enumerate(values):
                 try:
-                    values[i] = unidecode(values[i].decode('latin-1', 'ignore'))
+                    if (type(values[i]) is str): values[i] = unidecode(values[i].decode('latin-1', 'ignore'))
                 except:
                     logging.warning('DBX ERROR executeQuery latin-1 encoding failed for ' + str(values[i]))
             values = tuple(values)
