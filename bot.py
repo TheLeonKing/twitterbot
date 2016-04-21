@@ -167,7 +167,7 @@ def tweetNews(keyword=rKeyword()):
     
     # Tweet the first news article the bot hasn't tweeted about yet.
     for entry in results.entries:
-        logging.warning('debug0 ' + str(entry.title) + ' ' + str(entry.link))
+        logging.warning((entry.title) + (entry.link))
         title = unidecode((entry.title).decode('utf-8', 'ignore'))
         link = unidecode((entry.link.split('url=', 1)[1]).decode('utf-8', 'ignore'))
         
@@ -194,12 +194,12 @@ def tweetPicture(keyword=rKeyword(), page=1):
     for pic in results['photos']['photo']:
 
         logging.warning('debug0.2')
-        logging.warning('debug0.25 ' + str(pic['id']))
+        logging.warning(pic['id'])
         pic['id'] = unidecode(pic['id'].decode('utf-8', 'ignore'))
         if not exists('pic', pic['id']):
             
             logging.warning('debug0.3')
-            logging.warning('debug0.35 ' + str(pic['title']) + ' ' + str(pic['url']))
+            logging.warning(pic['title'] + pic['url'])
             
             pic['title'] = unidecode(pic['title'].decode('utf-8', 'ignore'))
             pic['url'] = unidecode(flickr.photos.getSizes(photo_id=pic['id'])['sizes']['size'][6]['source'].decode('utf-8', 'ignore'))
@@ -234,7 +234,7 @@ def retweet(keyword=rKeyword()):
     
     for tweet in results:
         # Correctly decode the tweet and screen name.
-        logging.warning('debugX ' + str(tweet['text']) + ' ' + str(tweet['user']['screen_name']))
+        logging.warning(tweet['text'] + tweet['user']['screen_name'])
         tweet['text'] = unidecode(tweet['text'].decode('utf-8', 'ignore'))
         tweet['user']['screen_name'] = unidecode(tweet['user']['screen_name'].decode('utf-8', 'ignore'))
         
