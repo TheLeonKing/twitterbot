@@ -1,1 +1,0 @@
-Tue, 19 Apr 2016 08:53:52 ERROR    DBX ERROR executeQuery (query=SELECT * FROM follows WHERE active = 1 LIMIT 1):(1054, "Unknown column 'active' in 'where clause'")
