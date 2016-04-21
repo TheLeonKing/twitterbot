@@ -405,9 +405,9 @@ def updateFollowers():
     except Exception as e:
         logging.error('BOT ERROR updateFollowers: ' + str(e))
 
-def doTweet():    
+def doTweet(c=None):    
     # Randomly execute an action according to the provided probabilities.
-    c = np.random.choice(tweetProbs.keys(), 1, p=tweetProbs.values())[0]
+    if c == None: c = np.random.choice(tweetProbs.keys(), 1, p=tweetProbs.values())[0]
     
     try:
         if   c == 'skip'   : stdout.write('.'), sys.stdout.flush()
@@ -417,9 +417,9 @@ def doTweet():
     except Exception as e:
         logging.error('BOT ERROR doTweet (c=' + str(c) + '): ' + str(e))
     
-def doFollow():    
+def doFollow(c=None):    
     # Randomly execute an action according to the provided probabilities.
-    c = np.random.choice(followProbs.keys(), 1, p=followProbs.values())[0]
+    if c == None: c = np.random.choice(followProbs.keys(), 1, p=followProbs.values())[0]
     
     try:
         if   c == 'skip'    : pass
@@ -457,8 +457,15 @@ def main(sc):
         logging.error('BOT ERROR main: ' + str(e))
         
     sc.enter(1, 1, main, (sc,))
+    
+def force(command):
+    elif c == 'news'   : return tweetNews()
+        elif c == 'picture': return tweetPicture()
+        elif c == 'retweet': return retweet()
 
 if __name__ == '__main__':
+    if len(sys.argv) > 2 and sys.argv[1] == 'tweet': doTweet(sys.argv[2])
+    if len(sys.argv) > 2 and sys.argv[1] == 'follow': doFollow(sys.argv[2])
     if trending: related.updateTrending()
     stdout.write('Now running...'), sys.stdout.flush() 
     s = sched.scheduler(time.time, time.sleep)
