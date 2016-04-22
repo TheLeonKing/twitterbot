@@ -1,4 +1,3 @@
-# coding=utf-8
 ''' The Twitter bot script that constantly runs. '''
 
 import bitly_api
