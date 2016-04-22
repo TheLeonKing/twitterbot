@@ -2,6 +2,7 @@
 ''' The Twitter bot script that constantly runs. '''
 
 import bitly_api
+import codecs
 import db
 import ConfigParser
 import datetime
@@ -64,6 +65,8 @@ relatedAccounts = related.fetchRelated('accounts')
 tweetProbs = probs.fetchProbs('tweet')
 followProbs = probs.fetchProbs('follow')
 
+def cleanStr(string):
+    return unicode(string.strip(codecs.BOM_UTF8), 'utf-8')
 
 def bitly(url):
     ' Takes an URL, returns its shortened bit.ly URL. '
@@ -135,7 +138,7 @@ def generateTweet(text, url, hashtag, pic):
     
     logging.warning('debug2.3')
     # Split at space before `textlength` characters, return full tweet.
-    text = unidecode(text.decode('utf-8', 'ignore'))
+    text = cleanStr(text)
 
     logging.warning('debug2.4')
     text = textwrap.wrap(text, textlength)[0]
@@ -168,9 +171,8 @@ def tweetNews(keyword=rKeyword()):
     # Tweet the first news article the bot hasn't tweeted about yet.
     for entry in results.entries:
         logging.warning((entry.title) + (entry.link))
-        title = unidecode((entry.title).decode('utf-8', 'ignore'))
-        link = unidecode((entry.link.split('url=', 1)[1]).decode('utf-8', 'ignore'))
-        
+        title = cleanStr(entry.title)
+        link = cleanStr(entry.link.split('url=', 1)[1])
 
         try:
             title = title.split(' -')
@@ -195,14 +197,13 @@ def tweetPicture(keyword=rKeyword(), page=1):
 
         logging.warning('debug0.2')
         logging.warning(pic['id'])
-        pic['id'] = unidecode(pic['id'].decode('utf-8', 'ignore'))
+        pic['id'] = cleanStr(pic['id'])
         if not exists('pic', pic['id']):
             
             logging.warning('debug0.3')
-            logging.warning(pic['title'] + pic['url'])
             
-            pic['title'] = unidecode(pic['title'].decode('utf-8', 'ignore'))
-            pic['url'] = unidecode(flickr.photos.getSizes(photo_id=pic['id'])['sizes']['size'][6]['source'].decode('utf-8', 'ignore'))
+            pic['title'] = cleanStr(pic['title'])
+            pic['url'] = cleanStr(flickr.photos.getSizes(photo_id=pic['id'])['sizes']['size'][6]['source'])
             
             logging.warning('debug0.4')
             print '\nTweeted (picture):', tweet(pic['title'], url=pic['url'], pic=pic['id'], hashtag=keyword)
@@ -235,8 +236,8 @@ def retweet(keyword=rKeyword()):
     for tweet in results:
         # Correctly decode the tweet and screen name.
         logging.warning(tweet['text'] + tweet['user']['screen_name'])
-        tweet['text'] = unidecode(tweet['text'].decode('utf-8', 'ignore'))
-        tweet['user']['screen_name'] = unidecode(tweet['user']['screen_name'].decode('utf-8', 'ignore'))
+        tweet['text'] = cleanStr(tweet['text'])
+        tweet['user']['screen_name'] = cleanStr(tweet['user']['screen_name'])
         
         # Retweet the first tweet that satisfies all the requirements.
         if longTweet(tweet) and englishTweet(tweet) and positiveTweet(tweet) and notOffensive(tweet) and not exists('id', tweet['id'], 'retweets'):
@@ -299,7 +300,7 @@ def positiveTweet(tweet, attempt=0):
 
 def follow(uId, uHandle, followers, tweet=None, source=None):
     ' Follows a user and insert the follow interaction in the database. '
-    uHandle = unidecode(uHandle.decode('utf-8', 'ignore'))
+    uHandle = cleanStr(uHandle)
     twython.create_friendship(user_id=uId)
     logging.warning('BOT TWREQ follow')
     insertFollow(uId, uHandle, followers, tweet, source)
@@ -319,8 +320,8 @@ def followKeyword(keyword=rKeyword()):
                 # Extract necessary information about tweet and user.
                 uId = int(tweet['user']['id'])
                 followers = tweet['user']['followers_count']
-                uHandle = unidecode(tweet['user']['screen_name'].decode('utf-8', 'ignore'))
-                tweet = unidecode(tweet['text'].decode('utf-8', 'ignore'))
+                uHandle = cleanStr(tweet['user']['screen_name'])
+                tweet = cleanStr(tweet['text'])
                 
                 # Follow user and insert follow interaction in database.
                 follow(uId, uHandle, followers, tweet=tweet)
@@ -401,7 +402,7 @@ def updateFollowers():
             # Only insert a user if (s)he is not already in the database.
             for user in results['users']:
                 if not exists('user_id', user['id'], 'followers'):
-                    user['screen_name'] = unidecode(user['screen_name'].decode('utf-8', 'ignore'))
+                    user['screen_name'] = cleanStr(user['screen_name'])
                     insertFollower(user['id'], user['screen_name'], user['followers_count'])
                     print '\nAdded follower to database:', user['screen_name']
             nextCursor = results['next_cursor']
