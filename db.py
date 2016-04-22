@@ -1,3 +1,4 @@
+# encoding=utf8
 '''
 Contains all functions related to database access and management.
 '''
@@ -32,11 +33,11 @@ dbC = {
     'name': config.get('db', 'name')
 }
 
-def cleanStr(string):
+def cleanStr(string, encType='utf-8'):
     try:
         if type(string) is str:
-            string = unicode(string.strip(codecs.BOM_UTF8), 'utf-8')
-            string = string.decode('ascii', 'ignore').encode('utf-8', 'ignore')
+            string = unicode(string.strip(codecs.BOM_UTF8), encType)
+            string = string.decode('ascii', 'ignore').encode(encType, 'ignore')
     except Exception as e:
         logging.warning("BOT ERROR cleanStr Couldn't encode string:")
         logging.warning(string)
@@ -51,7 +52,7 @@ def executeQuery(query, values=(), db=dbC['name'], output=False):
             values = list(values)
             for i, val in enumerate(values):
                 try:
-                    values[i] = cleanStr(values[i])
+                    values[i] = cleanStr(values[i], 'latin-1')
                 except:
                     logging.warning('DBX ERROR executeQuery latin-1 encoding failed for ' + str(values[i]))
             values = tuple(values)
