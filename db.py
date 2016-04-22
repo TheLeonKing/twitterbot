@@ -34,8 +34,9 @@ dbC = {
 
 def cleanStr(string):
     try:
-        string = string.decode('ascii', 'ignore').encode('utf-8', 'ignore')
-        string = unicode(string.strip(codecs.BOM_UTF8), 'utf-8')
+        if type(string) is str:
+            string = unicode(string.strip(codecs.BOM_UTF8), 'utf-8')
+            string = string.decode('ascii', 'ignore').encode('utf-8', 'ignore')
     except Exception as e:
         logging.warning("BOT ERROR cleanStr Couldn't encode string:")
         logging.warning(string)
@@ -50,7 +51,7 @@ def executeQuery(query, values=(), db=dbC['name'], output=False):
             values = list(values)
             for i, val in enumerate(values):
                 try:
-                    if (type(values[i]) is str): values[i] = cleanStr(values[i])
+                    values[i] = cleanStr(values[i])
                 except:
                     logging.warning('DBX ERROR executeQuery latin-1 encoding failed for ' + str(values[i]))
             values = tuple(values)
