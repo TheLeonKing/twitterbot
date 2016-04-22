@@ -2,6 +2,7 @@
 Contains all functions related to database access and management.
 '''
 
+from bot import cleanStr
 import ConfigParser
 import logging
 import MySQLdb
@@ -42,7 +43,7 @@ def executeQuery(query, values=(), db=dbC['name'], output=False):
             values = list(values)
             for i, val in enumerate(values):
                 try:
-                    if (type(values[i]) is str): values[i] = unidecode(values[i].decode('latin-1', 'ignore'))
+                    if (type(values[i]) is str): values[i] = cleanStr(values[i])
                 except:
                     logging.warning('DBX ERROR executeQuery latin-1 encoding failed for ' + str(values[i]))
             values = tuple(values)
