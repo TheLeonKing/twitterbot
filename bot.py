@@ -65,7 +65,13 @@ tweetProbs = probs.fetchProbs('tweet')
 followProbs = probs.fetchProbs('follow')
 
 def cleanStr(string):
-    return unicode(string.strip(codecs.BOM_UTF8), 'utf-8')
+    try:
+        string = string.decode('ascii', 'ignore').encode('utf-8', 'ignore')
+        string = unicode(string.strip(codecs.BOM_UTF8), 'utf-8')
+    except Exception as e:
+        logging.warning("BOT ERROR cleanStr Couldn't encode string:")
+        logging.warning(string)
+    return string
 
 def bitly(url):
     ' Takes an URL, returns its shortened bit.ly URL. '
@@ -248,7 +254,10 @@ def retweet(keyword=rKeyword()):
     
     # If no suitable tweets were found, show an error.
     print "\nCouldn't find suitable tweets."
-    logging.error('BOT ERROR retweet3 No suitable tweets for keyword ' + str(keyword))
+    try:
+        logging.error('BOT ERROR retweet3 No suitable tweets for keyword ' + str(keyword))
+    except Exception as e:
+        pass
     return None
 
 def longTweet(tweet):
