@@ -64,15 +64,6 @@ relatedAccounts = related.fetchRelated('accounts')
 tweetProbs = probs.fetchProbs('tweet')
 followProbs = probs.fetchProbs('follow')
 
-def cleanStr(string):
-    try:
-        string = string.decode('ascii', 'ignore').encode('utf-8', 'ignore')
-        string = unicode(string.strip(codecs.BOM_UTF8), 'utf-8')
-    except Exception as e:
-        logging.warning("BOT ERROR cleanStr Couldn't encode string:")
-        logging.warning(string)
-    return string
-
 def bitly(url):
     ' Takes an URL, returns its shortened bit.ly URL. '
     shorten = bitlyConn.shorten(url)
@@ -143,7 +134,7 @@ def generateTweet(text, url, hashtag, pic):
     
     logging.warning('debug2.3')
     # Split at space before `textlength` characters, return full tweet.
-    text = cleanStr(text)
+    text = db.cleanStr(text)
 
     logging.warning('debug2.4')
     text = textwrap.wrap(text, textlength)[0]
@@ -176,8 +167,8 @@ def tweetNews(keyword=rKeyword()):
     # Tweet the first news article the bot hasn't tweeted about yet.
     for entry in results.entries:
         logging.warning((entry.title) + (entry.link))
-        title = cleanStr(entry.title)
-        link = cleanStr(entry.link.split('url=', 1)[1])
+        title = db.cleanStr(entry.title)
+        link = db.cleanStr(entry.link.split('url=', 1)[1])
 
         try:
             title = title.split(' -')
@@ -202,13 +193,13 @@ def tweetPicture(keyword=rKeyword(), page=1):
 
         logging.warning('debug0.2')
         logging.warning(pic['id'])
-        pic['id'] = cleanStr(pic['id'])
+        pic['id'] = db.cleanStr(pic['id'])
         if not exists('pic', pic['id']):
             
             logging.warning('debug0.3')
             
-            pic['title'] = cleanStr(pic['title'])
-            pic['url'] = cleanStr(flickr.photos.getSizes(photo_id=pic['id'])['sizes']['size'][6]['source'])
+            pic['title'] = db.cleanStr(pic['title'])
+            pic['url'] = db.cleanStr(flickr.photos.getSizes(photo_id=pic['id'])['sizes']['size'][6]['source'])
             
             logging.warning('debug0.4')
             print '\nTweeted (picture):', tweet(pic['title'], url=pic['url'], pic=pic['id'], hashtag=keyword)
@@ -241,8 +232,8 @@ def retweet(keyword=rKeyword()):
     for tweet in results:
         # Correctly decode the tweet and screen name.
         logging.warning(tweet['text'] + tweet['user']['screen_name'])
-        tweet['text'] = cleanStr(tweet['text'])
-        tweet['user']['screen_name'] = cleanStr(tweet['user']['screen_name'])
+        tweet['text'] = db.cleanStr(tweet['text'])
+        tweet['user']['screen_name'] = db.cleanStr(tweet['user']['screen_name'])
         
         # Retweet the first tweet that satisfies all the requirements.
         if longTweet(tweet) and englishTweet(tweet) and positiveTweet(tweet) and notOffensive(tweet) and not exists('id', tweet['id'], 'retweets'):
@@ -308,7 +299,7 @@ def positiveTweet(tweet, attempt=0):
 
 def follow(uId, uHandle, followers, tweet=None, source=None):
     ' Follows a user and insert the follow interaction in the database. '
-    uHandle = cleanStr(uHandle)
+    uHandle = db.cleanStr(uHandle)
     twython.create_friendship(user_id=uId)
     logging.warning('BOT TWREQ follow')
     insertFollow(uId, uHandle, followers, tweet, source)
@@ -328,8 +319,8 @@ def followKeyword(keyword=rKeyword()):
                 # Extract necessary information about tweet and user.
                 uId = int(tweet['user']['id'])
                 followers = tweet['user']['followers_count']
-                uHandle = cleanStr(tweet['user']['screen_name'])
-                tweet = cleanStr(tweet['text'])
+                uHandle = db.cleanStr(tweet['user']['screen_name'])
+                tweet = db.cleanStr(tweet['text'])
                 
                 # Follow user and insert follow interaction in database.
                 follow(uId, uHandle, followers, tweet=tweet)
@@ -410,7 +401,7 @@ def updateFollowers():
             # Only insert a user if (s)he is not already in the database.
             for user in results['users']:
                 if not exists('user_id', user['id'], 'followers'):
-                    user['screen_name'] = cleanStr(user['screen_name'])
+                    user['screen_name'] = db.cleanStr(user['screen_name'])
                     insertFollower(user['id'], user['screen_name'], user['followers_count'])
                     print '\nAdded follower to database:', user['screen_name']
             nextCursor = results['next_cursor']

@@ -2,7 +2,6 @@
 Contains all functions related to database access and management.
 '''
 
-from bot import cleanStr
 import ConfigParser
 import logging
 import MySQLdb
@@ -33,6 +32,14 @@ dbC = {
     'name': config.get('db', 'name')
 }
 
+def cleanStr(string):
+    try:
+        string = string.decode('ascii', 'ignore').encode('utf-8', 'ignore')
+        string = unicode(string.strip(codecs.BOM_UTF8), 'utf-8')
+    except Exception as e:
+        logging.warning("BOT ERROR cleanStr Couldn't encode string:")
+        logging.warning(string)
+    return string
 
 def connect(db):
     return MySQLdb.connect(dbC['host'], dbC['user'], dbC['pass'], db, port=dbC['port'])
