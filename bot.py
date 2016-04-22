@@ -144,7 +144,6 @@ def generateTweet(text, url, hashtag, pic):
     tweet = ' '.join([text, hashtag, url_bitly])
     
     logging.warning('debug2.6')
-    logging.warning('tweet = ' + str(tweet))
     return (tweet, url_bitly) if len(tweet) <= 140 else (tweet[0:140], url_bilty)
 
 
