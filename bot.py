@@ -70,9 +70,9 @@ def bitly(url):
     shorten = bitlyConn.shorten(url)
     return shorten['url']
 
-def rKeyword():
+def rKeyword(keyword):
     ' Returns a random keyword. '
-    kw = random.choice(keywords)
+    kw = random.choice(keywords) if not keyword else keyword
     print 'KW = ', kw
     return kw
 
@@ -160,8 +160,10 @@ def exists(col, val, table='tweets'):
 ### TWEETING ###
 ################
 
-def tweetNews(keyword=rKeyword()):
+def tweetNews(keyword=None):
     ' Tweets a news article (based on a keyword). '
+    
+    keyword = rKeyword(keyword)
 
     # Fetch news articles matching our keyword.
     results = feedparser.parse('https://news.google.com/news/section?ned=us&output=rss&q=' + keyword)
@@ -183,8 +185,10 @@ def tweetNews(keyword=rKeyword()):
             print '\nTweeted (news):', tweet(title, url=link, hashtag=keyword)
             return None
 
-def tweetPicture(keyword=rKeyword(), page=1):
+def tweetPicture(keyword=None, page=1):
     ' Tweet a picture (based on a keyword). '
+    
+    keyword = rKeyword(keyword)
     
     # Find the first 100 results matching our keyword.
     results = flickr.photos.search(text=keyword, safe_search=1, content_type=1, page=1)
@@ -210,13 +214,15 @@ def tweetPicture(keyword=rKeyword(), page=1):
     # If the loop ended, we've tweeted all pictures already --> recursively call the next page.
     findPicture(keyword, page=page+1)
 
-def retweet(keyword=rKeyword()):
+def retweet(keyword=None):
     '''
     Retweets the first tweet that matches the given keyword,
     only if it is (1) longer than 70 chars; (2) written in
     English; (3) positive; (4) not offensive (no swear words);
     and (5) if the bot hasn't already retweeted it.
     '''
+    
+    keyword = rKeyword(keyword)
     
     # Find the results matching the keyword.
     results = twython.search(q=keyword, lang='en')['statuses']
@@ -311,8 +317,10 @@ def follow(uId, uHandle, followers, tweet=None, source=None):
     if tweet: print '\nFollowed (keyword)', uHandle, '(', tweet, ')'
     elif source: print '\nFollowed (source)', uHandle, '(', source, ')'
 
-def followKeyword(keyword=rKeyword()):
+def followKeyword(keyword=None):
     ' Follows a user based on a keyword. '
+    
+    keyword = rKeyword(keyword)
     results = twython.search(q=keyword, lang='en', count=10)
     logging.warning('BOT TWREQ followKeyword')
     try:
