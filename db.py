@@ -42,7 +42,7 @@ def cleanStr(string, encType='ascii'):
             string = string.encode(encType, 'ignore')            
     except Exception as e:
         skipTypes = [int, float, long]
-        if type(string) not in skipTypes and type(string) is not None:
+        if type(string) not in skipTypes and string is not None:
             logging.warning("BOT ERROR cleanStr Couldn't encode string:" + str(e))
             logging.warning(string)
     return string
