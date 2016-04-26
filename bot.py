@@ -72,7 +72,9 @@ def bitly(url):
 
 def rKeyword():
     ' Returns a random keyword. '
-    return random.choice(keywords)
+    kw = random.choice(keywords)
+    print 'KW = ', kw
+    return kw
 
 def relatedAcc():
     ' Returns a random related account. '
