@@ -274,7 +274,7 @@ def positiveTweet(tweet, attempt=0):
     alchemyUrl = 'http://access.alchemyapi.com/calls/text/TextGetTextSentiment'
     parameters = {
         'apikey' : alchemyApiKey,
-        'text' : tweet['text'],
+        'text' : db.cleanStr(tweet['text']),
         'outputMode' : 'json',
         'showSourceText' : 1
         }

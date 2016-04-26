@@ -33,11 +33,11 @@ dbC = {
     'name': config.get('db', 'name')
 }
 
-def cleanStr(string, encType='utf-8'):
+def cleanStr(string, encType='ascii'):
     try:
         if type(string) is str:
             string = unicode(string.strip(codecs.BOM_UTF8), encType)
-            string = string.decode('ascii', 'ignore').encode(encType, 'ignore')
+            string = string.decode('unicode_escape').encode(encType, 'replace')
     except Exception as e:
         logging.warning("BOT ERROR cleanStr Couldn't encode string:")
         logging.warning(string)
