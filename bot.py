@@ -71,10 +71,8 @@ def bitly(url):
     return shorten['url']
 
 def rKeyword(keyword):
-    ' Returns a random keyword. '
-    kw = random.choice(keywords) if not keyword else keyword
-    print 'KW = ', kw
-    return kw
+    ' Returns a random keyword (if keyword == None). '
+    return random.choice(keywords) if not keyword else keyword
 
 def relatedAcc():
     ' Returns a random related account. '
@@ -102,15 +100,13 @@ def insertFollower(uId, uHandle, followers):
     
 def tweet(text, url=None, pic=None, hashtag=None):
     ' Directly posts a (general) tweet. '
-    logging.warning('debug1')
+    
     tweet, url_bitly = generateTweet(text, url, hashtag, pic)
     
     # If the tweet has a picture, upload it and post a media tweet.
     if pic:
         photo = (StringIO(urllib.urlopen(url).read()))
-        logging.warning('debug3')
         response = twython.upload_media(media=photo)
-        logging.warning('debug4')
         tweet = twython.update_status(status=tweet, media_ids=[response['media_id']])['text']
         logging.warning('BOT TWREQ tweet1')
     # If this tweet doesn't have a picture, post a general tweet.
@@ -126,26 +122,20 @@ def tweet(text, url=None, pic=None, hashtag=None):
 def generateTweet(text, url, hashtag, pic):
     """ Generates a tweet's text. """
     
-    logging.warning('debug2.1')
     # Shorten URL and set hashtag (if they are provided).
     url_bitly = bitly(url) if url and not pic else ''
     hashtag = '#' + re.sub('[^A-Za-z0-9]+', '',  hashtag) if hashtag else ''
     
-    logging.warning('debug2.2')
     # Max text length is 140 - 25 (link length) - length hashtag - two whitespaces.
     textlength = 140 - 25 - len(hashtag) - 2
     
-    logging.warning('debug2.3')
     # Split at space before `textlength` characters, return full tweet.
     text = db.cleanStr(text)
 
-    logging.warning('debug2.4')
     text = textwrap.wrap(text, textlength)[0]
 
-    logging.warning('debug2.5')
     tweet = ' '.join([text, hashtag, url_bitly])
     
-    logging.warning('debug2.6')
     return (tweet, url_bitly) if len(tweet) <= 140 else (tweet[0:140], url_bilty)
 
 
@@ -193,21 +183,22 @@ def tweetPicture(keyword=None, page=1):
     # Find the first 100 results matching our keyword.
     results = flickr.photos.search(text=keyword, safe_search=1, content_type=1, page=1)
     
-    logging.warning('debug0.1')
     # Loop through the results until we find a photo we haven't tweeted yet.
     for pic in results['photos']['photo']:
-
-        logging.warning('debug0.2')
-        logging.warning(pic['id'])
         pic['id'] = db.cleanStr(pic['id'])
+        
+        # Check if tweet is in database.
         if not exists('pic', pic['id']):
-            
-            logging.warning('debug0.3')
-            
             pic['title'] = db.cleanStr(pic['title'])
             pic['url'] = db.cleanStr(flickr.photos.getSizes(photo_id=pic['id'])['sizes']['size'][6]['source'])
             
-            logging.warning('debug0.4')
+            # Check if tweet is on timeline.
+            timeline = twython.get_user_timeline(screen_name=myHandle)
+            for tweet in timeline:
+                if pic['title'] in db.cleanStr(tweet['text']):
+                    continue
+            
+            # If tweet is not in database nor in timeline, tweet it.
             print '\nTweeted (picture):', tweet(pic['title'], url=pic['url'], pic=pic['id'], hashtag=keyword)
             return None
     

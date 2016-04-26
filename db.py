@@ -34,13 +34,16 @@ dbC = {
 }
 
 def cleanStr(string, encType='ascii'):
+    ' Decoding/encoding a string and removes all conflicting characters. '
     try:
-        if type(string) is str:
-            string = unicode(string.strip(codecs.BOM_UTF8), encType)
-            string = string.decode('unicode_escape').encode(encType, 'replace')
+        try:
+            string = string.decode(encType, 'ignore')
+        except Exception as e:
+            string = string.encode(encType, 'ignore')            
     except Exception as e:
-        logging.warning("BOT ERROR cleanStr Couldn't encode string:")
-        logging.warning(string)
+        if type(string) is not int and type(string) is not float:
+            print("BOT ERROR cleanStr Couldn't encode string:" + str(e))
+            print(string)
     return string
 
 def connect(db):
