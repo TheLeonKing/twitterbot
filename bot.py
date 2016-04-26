@@ -194,8 +194,8 @@ def tweetPicture(keyword=None, page=1):
             
             # Check if tweet is on timeline.
             timeline = twython.get_user_timeline(screen_name=myHandle)
-            for tweet in timeline:
-                if pic['title'] in db.cleanStr(tweet['text']):
+            for myTweet in timeline:
+                if pic['title'] in db.cleanStr(myTweet['text']):
                     continue
             
             # If tweet is not in database nor in timeline, tweet it.

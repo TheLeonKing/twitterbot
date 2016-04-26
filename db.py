@@ -42,8 +42,8 @@ def cleanStr(string, encType='ascii'):
             string = string.encode(encType, 'ignore')            
     except Exception as e:
         if type(string) is not int and type(string) is not float:
-            print("BOT ERROR cleanStr Couldn't encode string:" + str(e))
-            print(string)
+            logging.warning("BOT ERROR cleanStr Couldn't encode string:" + str(e))
+            logging.warning(string)
     return string
 
 def connect(db):
