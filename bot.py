@@ -203,7 +203,7 @@ def tweetPicture(keyword=None, page=1):
             return None
     
     # If the loop ended, we've tweeted all pictures already --> recursively call the next page.
-    findPicture(keyword, page=page+1)
+    tweetPicture(keyword, page=page+1)
 
 def retweet(keyword=None):
     '''
