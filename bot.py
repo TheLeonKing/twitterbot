@@ -153,10 +153,14 @@ def exists(col, val, table='tweets'):
 def tweetNews(keyword=None):
     ' Tweets a news article (based on a keyword). '
     
-    keyword = rKeyword(keyword)
-
     # Fetch news articles matching our keyword.
-    results = feedparser.parse('https://news.google.com/news/section?ned=us&output=rss&q=' + keyword)
+    url = 'https://news.google.com/news/section?ned=us&output=rss'
+    
+    if not trending:
+        keyword = rKeyword(keyword)
+        url = url + '&q=' + keyword
+    
+    results = feedparser.parse(url)
     
     # Tweet the first news article the bot hasn't tweeted about yet.
     for entry in results.entries:
