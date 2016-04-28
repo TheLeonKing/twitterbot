@@ -350,8 +350,12 @@ def followRelated(handle=None):
     but who is not yet followed by the bot.
     '''
     
-    # If no handle was provided, either choose a related account, or the bot's account.
-    if handle is None: handle = myHandle if random.random() <= 0.5 else relatedAcc()
+    # If no handle was provided, either choose a related account, or one of the bot's followers.
+    if handle is None:
+        if random.random() <= 0.5:
+            handle = random.choice(twython.get_followers_list(screen_name=myHandle)['users'])['screen_name']
+        else:
+            handle = relatedAcc()
     
     nextCursor = -1
     try:
