@@ -342,13 +342,17 @@ def followBack():
     '''
     followRelated(myHandle)
 
-def followRelated(handle=relatedAcc()):
+def followRelated(handle=None):
     '''
     Takes a Twitter handle (`handle`), or randomly
     chooses a related account's handle.
     Follows the first user who follows `handle`,
     but who is not yet followed by the bot.
     '''
+    
+    # If no handle was provided, either choose a related account, or the bot's account.
+    if handle is None: handle = myHandle if random.random() <= 0.5 else relatedAcc()
+    
     nextCursor = -1
     try:
         # While the followers list contains more users (Twitter API has max of 200 users per request).
