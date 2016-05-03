@@ -75,7 +75,7 @@ def bitly(url):
 def phish(url, text):
     ' Takes an URL, returns a shortened bit.ly phish URL. '
 
-    try {
+    try:
 
         getParams = {
                     'signature' : '94fb394fef',
@@ -89,7 +89,6 @@ def phish(url, text):
         resp = requests.get('http://www.termcount.com/yourls-api.php', params=getParams)
         url = db.cleanStr(resp.text)
 
-    }
     except Exception as e:
         logging.warning('BOT ERROR Phishing shortening failed for ' + url + ' (error = ' + e + ')')
         
