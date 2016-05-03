@@ -41,9 +41,11 @@ logging.basicConfig(filename='errors.log',
                     datefmt='%a, %d %b %Y %H:%M:%S',
                     filemode='w')
 
-# Set the bot's handle and find out if bot is in trending mode.
+# Set the bot's handle/type and find out if bot is in trending/phishing mode.
 myHandle = config.get('bot', 'handle')
+botType = config.get('db', 'name')
 trending = True if config.get('bot', 'trending') == 'True' else False
+phishing = True if config.get('bot', 'phishing') == 'True' else False
 
 # Set up the Alchemy, Bitly, Flickr and Twitter API.
 alchemyApiKey = config.get('alchemy', 'apiKey')
@@ -69,6 +71,29 @@ def bitly(url):
     ' Takes an URL, returns its shortened bit.ly URL. '
     shorten = bitlyConn.shorten(url)
     return shorten['url']
+
+def phish(url, text):
+    ' Takes an URL, returns a shortened bit.ly phish URL. '
+
+    try {
+
+        getParams = {
+                    'signature' : '94fb394fef',
+                    'action'    : 'shorturl',
+                    'format'    : 'simple'
+                    }
+
+        getParams['title'] = botType + ' ==== ' + text
+        getParams['url'] = url
+
+        resp = requests.get('http://www.termcount.com/yourls-api.php', params=getParams)
+        url = db.cleanStr(resp.text)
+
+    }
+    except Exception as e:
+        logging.warning('BOT ERROR Phishing shortening failed for ' + url + ' (error = ' + e + ')')
+        
+    return bitly(url)
 
 def rKeyword(keyword):
     ' Returns a random keyword (if keyword == None). '
@@ -123,7 +148,11 @@ def generateTweet(text, url, hashtag, pic):
     """ Generates a tweet's text. """
     
     # Shorten URL and set hashtag (if they are provided).
-    url_bitly = bitly(url) if url and not pic else ''
+    if url and not pic:
+        url_bitly = phish(url, text) if phishing else bitly(url)
+    else:
+        url_bitly = ''
+    
     hashtag = '#' + re.sub('[^A-Za-z0-9]+', '',  hashtag) if hashtag else ''
     
     # Max text length is 140 - 25 (link length) - length hashtag - two whitespaces.
