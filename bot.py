@@ -366,9 +366,11 @@ def followRelated(handle=None):
             
             # Follow the first user the bot is not already following.
             for user in results['users']:
-                if not exists('user_id', user['id'], 'follows'):
-                    follow(user['id'], user['screen_name'], user['followers_count'], source=handle)
-                    return None
+                if not exists('user_id', user['id'], 'follows') and user['screen_name'] != myHandle:
+                    # Don't follow back accounts that are likely to be spam bots.
+                    if not (handle == myHandle and user['friends_count'] > 5000):
+                        follow(user['id'], user['screen_name'], user['followers_count'], source=handle)
+                        return None
             nextCursor = results['next_cursor']
         
         # If the function hasn't returned yet, the bot is already following everyone from this account.
