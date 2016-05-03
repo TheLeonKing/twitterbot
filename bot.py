@@ -418,7 +418,7 @@ def unfollow():
         return None
     
     # If user is following the bot, set active = 2 to prevent him from being unfollowed.
-    if not exists('user_id', uId, 'followers'):
+    if 'followed_by' in twython.lookup_friendships(user_id=4822452311)[0]['connections']:
         db.executeQuery('UPDATE follows SET active = 2 WHERE user_id = %s', (uId,))
         return unfollow()
     
