@@ -132,11 +132,9 @@ def tweet(text, url=None, pic=None, hashtag=None):
         photo = (StringIO(urllib.urlopen(url).read()))
         response = twython.upload_media(media=photo)
         tweet = twython.update_status(status=tweet, media_ids=[response['media_id']])['text']
-        logging.warning('BOT TWREQ tweet1')
     # If this tweet doesn't have a picture, post a general tweet.
     else:
         twython.update_status(status=tweet)
-        logging.warning('BOT TWREQ tweet2')
     
     # Insert Tweet into database.
     insertTweet(tweet, url=url, bitly=url_bitly, pic=pic)
@@ -249,7 +247,6 @@ def retweet(keyword=None):
     
     # Find the results matching the keyword.
     results = twython.search(q=keyword, lang='en')['statuses']
-    logging.warning('BOT TWREQ retweet1')
     
     # Calculate a score for each tweet, based on the persons no. of followers and the tweet's no. of retweets.
     for tweet in results:
@@ -269,7 +266,6 @@ def retweet(keyword=None):
         # Retweet the first tweet that satisfies all the requirements.
         if longTweet(tweet) and englishTweet(tweet) and positiveTweet(tweet) and notOffensive(tweet) and not exists('id', tweet['id'], 'retweets'):
             twython.retweet(id=tweet['id'])
-            logging.warning('BOT TWREQ retweet2')
             insertRetweet(tweet['id'], tweet['text'], tweet['user']['screen_name'], tweet['user']['followers_count'], tweet['retweet_count'])
             print '\nRetweeted:', tweet['text']
             return None
@@ -332,7 +328,6 @@ def follow(uId, uHandle, followers, tweet=None, source=None):
     ' Follows a user and insert the follow interaction in the database. '
     uHandle = db.cleanStr(uHandle)
     twython.create_friendship(user_id=uId)
-    logging.warning('BOT TWREQ follow')
     insertFollow(uId, uHandle, followers, tweet, source)
     
     # Print feedback, based on whether the follow action was
@@ -345,7 +340,6 @@ def followKeyword(keyword=None):
     
     keyword = rKeyword(keyword)
     results = twython.search(q=keyword, lang='en', count=10)
-    logging.warning('BOT TWREQ followKeyword')
     try:
         for tweet in results['statuses']:
             try:
@@ -390,7 +384,6 @@ def followRelated(handle=None):
         # While the followers list contains more users (Twitter API has max of 200 users per request).
         while(nextCursor):
             results = twython.get_followers_list(screen_name=handle, count=200, cursor=nextCursor)
-            logging.warning('BOT TWREQ followRelated')
             
             # Follow the first user the bot is not already following.
             for user in results['users']:
@@ -418,8 +411,9 @@ def unfollow():
         return None
     
     # If user is following the bot, set active = 2 to prevent him from being unfollowed.
-    if 'followed_by' in twython.lookup_friendships(user_id=4822452311)[0]['connections']:
+    if 'followed_by' in twython.lookup_friendships(user_id=uId)[0]['connections']:
         db.executeQuery('UPDATE follows SET active = 2 WHERE user_id = %s', (uId,))
+        print '\nMarked user with ID ' + str(uId) + ' as "do not unfollow".'
         return unfollow()
     
     # If user is not following the bot, unfollow him.
@@ -439,7 +433,6 @@ def updateFollowers():
         # While the followers list contains more users (Twitter API has max of 200 users per request).
         while(nextCursor):
             results = twython.get_followers_list(screen_name=myHandle, count=200, cursor=nextCursor)
-            logging.warning('BOT TWREQ updateFollowers')
             
             # Only insert a user if (s)he is not already in the database.
             for user in results['users']:
