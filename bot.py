@@ -355,8 +355,9 @@ def followKeyword(keyword=None):
                 uHandle = db.cleanStr(tweet['user']['screen_name'])
                 tweet = db.cleanStr(tweet['text'])
                 
-                # Follow user and insert follow interaction in database.
-                follow(uId, uHandle, followers, tweet=tweet)
+                # Check if the bot is not already following this user:
+                if not exists('user_id', uId, 'follows') and uHandle != myHandle:
+                    follow(uId, uHandle, followers, tweet=tweet)
                 return None
             except Exception as e:
                 logging.error('BOT ERROR followKeyword1: ' + str(e))
