@@ -288,9 +288,15 @@ def englishTweet(tweet):
 
 def notOffensive(tweet):
     " Checks if a tweet doesn't contain bad words. "
+    
+    # Check if tweet contains bad words.
     for word in re.findall(r"[A-Za-z]+|\S", tweet['text']):
         if word in badWords:
             return False
+    
+    # Check if part of word contains 'porn'  or 'fuck'.
+    if 'porn' in tweet or 'fuck' in tweet: return False
+    
     return True
 
 def positiveTweet(tweet, attempt=0):
