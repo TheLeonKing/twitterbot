@@ -423,7 +423,7 @@ def unfollow():
             print '\nMarked user with ID ' + str(uId) + ' as "do not unfollow".'
             return unfollow()
     except Exception as e:
-        pass
+        logging.warning('Could not lookup friendship status for user ' + str(uId))
     
     # If user is not following the bot, unfollow him.
     try:
