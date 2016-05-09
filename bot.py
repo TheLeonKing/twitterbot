@@ -264,7 +264,7 @@ def retweet(keyword=None):
         tweet['user']['screen_name'] = db.cleanStr(tweet['user']['screen_name'])
         
         # Retweet the first tweet that satisfies all the requirements.
-        if longTweet(tweet) and englishTweet(tweet) and positiveTweet(tweet) and notOffensive(tweet, tweet['user']['screen_name']) and not exists('id', tweet['id'], 'retweets'):
+        if longTweet(tweet) and englishTweet(tweet) and positiveTweet(tweet) and notOffensive(tweet['text'], tweet['user']['screen_name']) and not exists('id', tweet['id'], 'retweets'):
             twython.retweet(id=tweet['id'])
             insertRetweet(tweet['id'], tweet['text'], tweet['user']['screen_name'], tweet['user']['followers_count'], tweet['retweet_count'])
             print '\nRetweeted:', tweet['text']
@@ -286,16 +286,16 @@ def englishTweet(tweet):
     ' Checks if a tweet is written in English. '
     return tweet['metadata']['iso_language_code'] == 'en'
 
-def notOffensive(tweet, handle):
+def notOffensive(text, handle):
     " Checks if a tweet doesn't contain bad words. "
     
     # Check if tweet contains bad words.
-    for word in re.findall(r"[A-Za-z]+|\S", tweet['text']):
+    for word in re.findall(r"[A-Za-z]+|\S", text):
         if word in badWords:
             return False
     
     # Check if part of word/name contains 'porn'  or 'fuck'.
-    if 'porn' in tweet or 'fuck' in tweet or 'porn' in handle or 'fuck' in handle: return False
+    if 'porn' in text or 'fuck' in text or 'porn' in handle or 'fuck' in handle: return False
     
     return True
 
