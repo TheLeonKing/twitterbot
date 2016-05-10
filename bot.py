@@ -18,6 +18,7 @@ import re
 import related
 import requests
 import sched
+import signal
 import sys
 import textwrap
 import time
@@ -455,17 +456,30 @@ def updateFollowers():
     except Exception as e:
         logging.error('BOT ERROR updateFollowers: ' + str(e))
 
+def signal_handler(signum, frame):
+    raise Exception('Timeout!')
+
 def doTweet(c=None):    
-    # Randomly execute an action according to the provided probabilities.
+    # Randomly choose a command (c) according to the provided probabilities.
     if c == None: c = np.random.choice(tweetProbs.keys(), 1, p=tweetProbs.values())[0]
     
+    # Set the timer to six seconds.
+    signal.signal(signal.SIGALRM, signal_handler)
+    signal.alarm(6)
+    
     try:
-        if   c == 'skip'   : stdout.write('.'), sys.stdout.flush()
-        elif c == 'news'   : return tweetNews()
-        elif c == 'picture': return tweetPicture()
-        elif c == 'retweet': return retweet()
-    except Exception as e:
-        logging.error('BOT ERROR doTweet (c=' + str(c) + '): ' + str(e))
+        # Execute the chosen command.
+        for x in range(0, 6):
+            try:
+                if   c == 'skip'   : stdout.write('.'), sys.stdout.flush()
+                elif c == 'news'   : return tweetNews()
+                elif c == 'picture': return tweetPicture()
+                elif c == 'retweet': return retweet()
+            # Break if the function hasn't been completed within the timeframe.
+            except Exception as e:
+                logging.error('BOT ERROR doTweet (c=' + str(c) + '): ' + str(e))
+    except Exception, msg:
+        logging.error('BOT ERROR Timeout')
     
 def doFollow(c=None):    
     # Randomly execute an action according to the provided probabilities.
