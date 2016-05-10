@@ -462,7 +462,7 @@ def signal_handler(signum, frame):
 def doTweet(c=None):    
     # Randomly execute a command (c) according to the provided probabilities.
     if c == None: c = np.random.choice(tweetProbs.keys(), 1, p=tweetProbs.values())[0]
-    
+    print 'dotweet'
     try:
         if   c == 'skip'   : stdout.write('.'), sys.stdout.flush()
         elif c == 'news'   : return tweetNews()
@@ -475,7 +475,7 @@ def doTweet(c=None):
 def doFollow(c=None):    
     # Randomly execute a command (c) according to the provided probabilities.
     if c == None: c = np.random.choice(followProbs.keys(), 1, p=followProbs.values())[0]
-    
+    print 'dofollow'
     try:
         if   c == 'skip'    : pass
         elif c == 'keyword' : return followKeyword()
