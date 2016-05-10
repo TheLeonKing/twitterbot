@@ -467,17 +467,16 @@ def doTweet(c=None):
     signal.signal(signal.SIGALRM, signal_handler)
     signal.alarm(6)
     
+    # Execute the chosen command.
     try:
-        # Execute the chosen command.
-        for x in range(0, 6):
-            try:
-                if   c == 'skip'   : stdout.write('.'), sys.stdout.flush()
-                elif c == 'news'   : return tweetNews()
-                elif c == 'picture': return tweetPicture()
-                elif c == 'retweet': return retweet()
-            # Break if the function hasn't been completed within the timeframe.
-            except Exception as e:
-                logging.error('BOT ERROR doTweet (c=' + str(c) + '): ' + str(e))
+        try:
+            if   c == 'skip'   : stdout.write('.'), sys.stdout.flush()
+            elif c == 'news'   : return tweetNews()
+            elif c == 'picture': return tweetPicture()
+            elif c == 'retweet': return retweet()
+        except Exception as e:
+            logging.error('BOT ERROR doTweet (c=' + str(c) + '): ' + str(e))
+    # Break if the function hasn't been completed within the timeframe.
     except Exception, msg:
         logging.error('BOT ERROR Timeout')
     
