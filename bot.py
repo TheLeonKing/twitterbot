@@ -494,9 +494,9 @@ def main(sc):
     global keywords, relatedAccounts
     currTime = datetime.datetime.now().time()
     
-    # Set the timer to six seconds.
+    # Set the timer to ten seconds.
     signal.signal(signal.SIGALRM, signal_handler)
-    signal.alarm(6)
+    signal.alarm(10)
     
     # Execute the follow/tweet/update actions.
     try:
