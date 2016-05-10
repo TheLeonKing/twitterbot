@@ -460,28 +460,20 @@ def signal_handler(signum, frame):
     raise Exception('Timeout!')
 
 def doTweet(c=None):    
-    # Randomly choose a command (c) according to the provided probabilities.
+    # Randomly execute a command (c) according to the provided probabilities.
     if c == None: c = np.random.choice(tweetProbs.keys(), 1, p=tweetProbs.values())[0]
     
-    # Set the timer to six seconds.
-    signal.signal(signal.SIGALRM, signal_handler)
-    signal.alarm(6)
-    
-    # Execute the chosen command.
     try:
-        try:
-            if   c == 'skip'   : stdout.write('.'), sys.stdout.flush()
-            elif c == 'news'   : return tweetNews()
-            elif c == 'picture': return tweetPicture()
-            elif c == 'retweet': return retweet()
-        except Exception as e:
-            logging.error('BOT ERROR doTweet (c=' + str(c) + '): ' + str(e))
-    # Break if the function hasn't been completed within the timeframe.
-    except Exception, msg:
-        logging.error('BOT ERROR Timeout')
+        if   c == 'skip'   : stdout.write('.'), sys.stdout.flush()
+        elif c == 'news'   : return tweetNews()
+        elif c == 'picture': return tweetPicture()
+        elif c == 'retweet': return retweet()
+    except Exception as e:
+        logging.error('BOT ERROR doTweet (c=' + str(c) + '): ' + str(e))
+
     
 def doFollow(c=None):    
-    # Randomly execute an action according to the provided probabilities.
+    # Randomly execute a command (c) according to the provided probabilities.
     if c == None: c = np.random.choice(followProbs.keys(), 1, p=followProbs.values())[0]
     
     try:
@@ -502,22 +494,31 @@ def main(sc):
     global keywords, relatedAccounts
     currTime = datetime.datetime.now().time()
     
+    # Set the timer to six seconds.
+    signal.signal(signal.SIGALRM, signal_handler)
+    signal.alarm(6)
+    
+    # Execute the follow/tweet/update actions.
     try:
-        # Update keywords and related accounts once every hour.
-        if currTime.hour == 0 and currTime.minute == 0 and currTime.second < 2:
-            if trending: related.updateTrending()
-            keywords = related.fetchRelated('keywords')
-            relatedAccounts = related.fetchRelated('accounts')
+        try:
+            # Update keywords and related accounts once every hour.
+            if currTime.hour == 0 and currTime.minute == 0 and currTime.second < 2:
+                if trending: related.updateTrending()
+                keywords = related.fetchRelated('keywords')
+                relatedAccounts = related.fetchRelated('accounts')
 
-        # Update followers once every ten minutes.
-        if currTime.second == 10 and currTime.minute % 10 == 0: updateFollowers()
+            # Update followers once every ten minutes.
+            if currTime.second == 10 and currTime.minute % 10 == 0: updateFollowers()
 
-        # Only show activity between 8:00 AM and 10:00 PM.
-        if currTime.hour >= 8 and currTime.hour <= 22:
-            doTweet()
-            doFollow()
-    except Exception as e:
-        logging.error('BOT ERROR main: ' + str(e))
+            # Only show activity between 8:00 AM and 10:00 PM.
+            if currTime.hour >= 8 and currTime.hour <= 22:
+                doTweet()
+                doFollow()
+        except Exception as e:
+            logging.error('BOT ERROR main: ' + str(e))
+    # Break if the actions haven't been completed within the timeframe.
+    except Exception, msg:
+        logging.error('BOT ERROR Timeout')
         
     sc.enter(1, 1, main, (sc,))
 
