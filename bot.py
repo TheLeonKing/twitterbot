@@ -462,12 +462,13 @@ def signal_handler(signum, frame):
 def doTweet(c=None):    
     # Randomly execute a command (c) according to the provided probabilities.
     if c == None: c = np.random.choice(tweetProbs.keys(), 1, p=tweetProbs.values())[0]
-    print 'dotweet'
+    
     try:
         if   c == 'skip'   : stdout.write('.'), sys.stdout.flush()
         elif c == 'news'   : return tweetNews()
         elif c == 'picture': return tweetPicture()
         elif c == 'retweet': return retweet()
+        if   c != 'skip'    : print 'doTweet'
     except Exception as e:
         logging.error('BOT ERROR doTweet (c=' + str(c) + '): ' + str(e))
 
@@ -475,13 +476,14 @@ def doTweet(c=None):
 def doFollow(c=None):    
     # Randomly execute a command (c) according to the provided probabilities.
     if c == None: c = np.random.choice(followProbs.keys(), 1, p=followProbs.values())[0]
-    print 'dofollow'
+    
     try:
         if   c == 'skip'    : pass
         elif c == 'keyword' : return followKeyword()
         elif c == 'back'    : return followBack()
         elif c == 'related' : return followRelated()
         elif c == 'unfollow': return unfollow()
+        if   c != 'skip'    : print 'doFollow'
     except Exception as e:
         logging.error('BOT ERROR doFollow (c=' + str(c) + '): ' + str(e))
 
