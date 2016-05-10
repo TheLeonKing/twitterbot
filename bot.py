@@ -498,7 +498,7 @@ def main(sc):
     
     # Set the timer to ten seconds.
     signal.signal(signal.SIGALRM, signal_handler)
-    signal.alarm(10)
+    signal.alarm(30)
     
     # Execute the follow/tweet/update actions.
     try:
