@@ -101,12 +101,6 @@ def insertFollower(uId, uHandle, followers):
     query = 'INSERT INTO followers (user_id, user_handle, followers) VALUES (%s, %s, %s);'
     db.executeQuery(query, (uId, uHandle, followers))
 
-class TimeoutException(Exception):
-    pass
-
-def timeout_handler(signum, frame):
-    raise TimeoutException
-
 def tweet(text, url=None, pic=None, hashtag=None):
     ' Directly posts a (general) tweet. '
     
@@ -116,10 +110,13 @@ def tweet(text, url=None, pic=None, hashtag=None):
     if pic:
         photo = (StringIO(urllib.urlopen(url).read()))
         response = twython.upload_media(media=photo)
+        logging.warning('BOT TWREQ tweet1')
         tweet = twython.update_status(status=tweet, media_ids=[response['media_id']])['text']
+        logging.warning('BOT TWREQ tweet2')
     # If this tweet doesn't have a picture, post a general tweet.
     else:
         twython.update_status(status=tweet)
+        logging.warning('BOT TWREQ tweet3')
     
     # Insert Tweet into database.
     insertTweet(tweet, url=url, bitly=url_bitly, pic=pic)
@@ -231,6 +228,7 @@ def tweetPicture(keyword=None, page=1):
             
             # Check if tweet is on timeline.
             timeline = twython.get_user_timeline(screen_name=myHandle)
+            logging.warning('BOT TWREQ tweetPicture')
             for myTweet in timeline:
                 if pic['title'] in db.cleanStr(myTweet['text']):
                     continue
@@ -254,6 +252,7 @@ def retweet(keyword=None):
     
     # Find the results matching the keyword.
     results = twython.search(q=keyword, lang='en')['statuses']
+    logging.warning('BOT TWREQ retweet')
     
     # Calculate a score for each tweet, based on the persons no. of followers and the tweet's no. of retweets.
     for tweet in results:
@@ -273,6 +272,7 @@ def retweet(keyword=None):
         # Retweet the first tweet that satisfies all the requirements.
         if longTweet(tweet) and englishTweet(tweet) and positiveTweet(tweet) and notOffensive(tweet['text'], tweet['user']['screen_name']) and not exists('id', tweet['id'], 'retweets'):
             twython.retweet(id=tweet['id'])
+            logging.warning('BOT TWREQ retweet')
             insertRetweet(tweet['id'], tweet['text'], tweet['user']['screen_name'], tweet['user']['followers_count'], tweet['retweet_count'])
             print '\nRetweeted:', tweet['text']
             return None
@@ -341,6 +341,7 @@ def follow(uId, uHandle, followers, tweet=None, source=None):
     ' Follows a user and insert the follow interaction in the database. '
     uHandle = db.cleanStr(uHandle)
     twython.create_friendship(user_id=uId)
+    logging.warning('BOT TWREQ tweetPicture1')
     insertFollow(uId, uHandle, followers, tweet, source)
     
     # Print feedback, based on whether the follow action was
@@ -353,6 +354,7 @@ def followKeyword(keyword=None):
     
     keyword = rKeyword(keyword)
     results = twython.search(q=keyword, lang='en', count=10)
+    logging.warning('BOT TWREQ followKeyword1')
     try:
         for tweet in results['statuses']:
             try:
@@ -390,6 +392,7 @@ def followRelated(handle=None):
     if handle is None:
         if random.random() <= 0.5:
             handle = random.choice(twython.get_followers_list(screen_name=myHandle)['users'])['screen_name']
+            logging.warning('BOT TWREQ followRelated1')
         else:
             handle = relatedAcc()
     
@@ -398,6 +401,7 @@ def followRelated(handle=None):
         # While the followers list contains more users (Twitter API has max of 200 users per request).
         while(nextCursor):
             results = twython.get_followers_list(screen_name=handle, count=200, cursor=nextCursor)
+            logging.warning('BOT TWREQ followRelated2')
             
             # Follow the first user the bot is not already following.
             for user in results['users']:
@@ -427,6 +431,7 @@ def unfollow():
     # If user is following the bot, set active = 2 to prevent him from being unfollowed.
     try:
         if 'followed_by' in twython.lookup_friendships(user_id=int(uId))[0]['connections']:
+            logging.warning('BOT TWREQ unfollow1')
             db.executeQuery('UPDATE follows SET active = 2 WHERE user_id = %s', (uId,))
             print '\nMarked user with ID ' + str(uId) + ' as "do not unfollow".'
             return unfollow()
@@ -436,6 +441,7 @@ def unfollow():
     # If user is not following the bot, unfollow him.
     try:
         twython.destroy_friendship(user_id=uId)
+        logging.warning('BOT TWREQ unfollow2')
         print '\nUnfollowed user with ID ' + str(uId)
     except Exception as e:
         logging.error('BOT ERROR unfollow: ' + str(e))
@@ -450,6 +456,7 @@ def updateFollowers():
         # While the followers list contains more users (Twitter API has max of 200 users per request).
         while(nextCursor):
             results = twython.get_followers_list(screen_name=myHandle, count=200, cursor=nextCursor)
+            logging.warning('BOT TWREQ updateFollowers')
             
             # Only insert a user if (s)he is not already in the database.
             for user in results['users']:
@@ -496,31 +503,22 @@ def doFollow(c=None):
 def main(sc):
     global keywords, relatedAccounts
     currTime = datetime.datetime.now().time()
-    signal.signal(signal.SIGALRM, timeout_handler)
     
     # Execute the follow/tweet/update actions.
     try:
-        signal.alarm(30)
-        try:
-            # Update keywords and related accounts once every hour.
-            if currTime.hour == 0 and currTime.minute == 0 and currTime.second < 2:
-                if trending: related.updateTrending()
-                keywords = related.fetchRelated('keywords')
-                relatedAccounts = related.fetchRelated('accounts')
+        # Update keywords and related accounts once every hour.
+        if currTime.hour == 0 and currTime.minute == 0 and currTime.second < 2:
+            if trending: related.updateTrending()
+            keywords = related.fetchRelated('keywords')
+            relatedAccounts = related.fetchRelated('accounts')
 
-            # Update followers once every ten minutes.
-            if currTime.second == 10 and currTime.minute % 10 == 0: updateFollowers()
+        # Update followers once every ten minutes.
+        if currTime.second == 10 and currTime.minute % 10 == 0: updateFollowers()
 
-            # Only show activity between 8:00 AM and 10:00 PM.
-            if True: #currTime.hour >= 8 and currTime.hour <= 22:
-                doTweet()
-                doFollow()
-        # Break if the actions haven't been completed within the timeframe.
-        except TimeoutException:
-            logging.error('BOT ERROR main: ' + str(e))
-        # Reset the alarm.
-        else:
-            signal.alarm(0)    
+        # Only show activity between 8:00 AM and 10:00 PM.
+        if True: #currTime.hour >= 8 and currTime.hour <= 22:
+            doTweet()
+            doFollow()
     except Exception, msg:
         logging.error('BOT ERROR Timeout')
         

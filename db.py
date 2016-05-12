@@ -33,6 +33,12 @@ dbC = {
     'name': config.get('db', 'name')
 }
 
+class TimeoutException(Exception):
+    pass
+
+def timeout_handler(signum, frame):
+    raise TimeoutException('TimeOut')
+
 def cleanStr(string, encType='ascii'):
     ' Decoding/encoding a string and removes all conflicting characters. '
     try:
@@ -43,7 +49,7 @@ def cleanStr(string, encType='ascii'):
     except Exception as e:
         skipTypes = [int, float, long]
         if type(string) not in skipTypes and string is not None:
-            logging.warning("BOT ERROR cleanStr Couldn't encode string:" + str(e))
+            logging.warning("BOT ERROR cleanStr Couldn't encode string: " + str(e))
             logging.warning(string)
     return string
 
@@ -51,6 +57,8 @@ def connect(db):
     return MySQLdb.connect(dbC['host'], dbC['user'], dbC['pass'], db, port=dbC['port'])
 
 def executeQuery(query, values=(), db=dbC['name'], output=False):
+    signal.signal(signal.SIGALRM, timeout_handler)
+    
     try:
         try:
             values = list(values)
@@ -62,12 +70,24 @@ def executeQuery(query, values=(), db=dbC['name'], output=False):
             values = tuple(values)
         except Exception as e:
             pass
-        db = connect(db)
-        cursor = db.cursor()
-        cursor.execute(query, values)
-        if output: return cursor.fetchall()
+            
+            signal.signal(signal.SIGALRM, timeout_handler)
+            
+            # Give the query 20 seconds to complete.
+            try:
+                signal.alarm(20)
+                db = connect(db)
+                cursor = db.cursor()
+                cursor.execute(query, values)
+                if output: return cursor.fetchall()
+            # Break if the actions haven't been completed within the timeframe.
+            except TimeoutException:
+                logging.error('BOT ERROR main: ' + str(e))
+            # Reset the alarm.
+            else:
+                signal.alarm(0)
     except Exception as e:
-        logging.error('DBX ERROR executeQuery (query=' + query + '):' + str(e))
+        logging.error('DBX ERROR executeQuery (query=' + query + '): ' + str(e))
 
 def createDb(db):
     con = MySQLdb.connect(dbC['host'], dbC['user'], dbC['pass'], port=dbC['port'])
