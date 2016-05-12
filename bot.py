@@ -101,6 +101,12 @@ def insertFollower(uId, uHandle, followers):
     ' Inserts a follow interaction into the database. '
     query = 'INSERT INTO followers (user_id, user_handle, followers) VALUES (%s, %s, %s);'
     db.executeQuery(query, (uId, uHandle, followers))
+    
+class TimeoutException(Exception):
+    pass
+
+def timeout_handler(signum, frame):
+    raise TimeoutException('Timeout')
 
 def tweet(text, url=None, pic=None, hashtag=None):
     ' Directly posts a (general) tweet. '
@@ -515,21 +521,32 @@ def main(sc):
     
     # Execute the follow/tweet/update actions.
     try:
-        # Update keywords and related accounts once every hour.
-        if currTime.hour == 0 and currTime.minute == 0 and currTime.second < 2:
-            if trending: related.updateTrending()
-            keywords = related.fetchRelated('keywords')
-            relatedAccounts = related.fetchRelated('accounts')
+        signal.signal(signal.SIGALRM, timeout_handler)
+        
+        # Give the actions 5 minutes to complete.
+        try:
+            signal.alarm(300)
+            # Update keywords and related accounts once every hour.
+            if currTime.hour == 0 and currTime.minute == 0 and currTime.second < 2:
+                if trending: related.updateTrending()
+                keywords = related.fetchRelated('keywords')
+                relatedAccounts = related.fetchRelated('accounts')
 
-        # Update followers once every ten minutes.
-        if currTime.second == 10 and currTime.minute % 10 == 0: updateFollowers()
+            # Update followers once every ten minutes.
+            if currTime.second == 10 and currTime.minute % 10 == 0: updateFollowers()
 
-        # Only show activity between 8:00 AM and 10:00 PM.
-        if currTime.hour >= 8 and currTime.hour <= 22:
-            doTweet()
-            doFollow()
-    except Exception, msg:
-        logging.error('BOT ERROR Timeout')
+            # Only show activity between 8:00 AM and 10:00 PM.
+            if currTime.hour >= 8 and currTime.hour <= 22:
+                doTweet()
+                doFollow()
+        # Break if the actions haven't been completed within the timeframe.
+        except TimeoutException as e:
+            logging.error('BOT ERROR main1: ' + str(e))
+        # Reset the alarm.
+        finally:
+            signal.alarm(0)
+    except Exception as e:
+        logging.error('BOT ERROR main2: ' + str(e))
         
     sc.enter(1, 1, main, (sc,))
 

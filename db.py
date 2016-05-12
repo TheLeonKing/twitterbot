@@ -38,7 +38,7 @@ class TimeoutException(Exception):
     pass
 
 def timeout_handler(signum, frame):
-    raise TimeoutException('TimeOut')
+    raise TimeoutException('Timeout')
 
 def cleanStr(string, encType='ascii'):
     ' Decoding/encoding a string and removes all conflicting characters. '
