@@ -18,7 +18,6 @@ import re
 import related
 import requests
 import sched
-import signal
 import sys
 import textwrap
 import time
@@ -73,28 +72,6 @@ def bitly(url):
     shorten = bitlyConn.shorten(url)
     return shorten['url']
 
-def phish(url, text):
-    ' Takes an URL, returns a shortened bit.ly phish URL. '
-
-    try:
-
-        getParams = {
-                    'signature' : '94fb394fef',
-                    'action'    : 'shorturl',
-                    'format'    : 'simple'
-                    }
-
-        getParams['title'] = botType + ' ==== ' + text
-        getParams['url'] = url
-
-        resp = requests.get('http://www.termcount.com/yourls-api.php', params=getParams)
-        url = db.cleanStr(resp.text)
-
-    except Exception as e:
-        logging.warning('BOT ERROR Phishing shortening failed for ' + url + ' (error = ' + e + ')')
-        
-    return bitly(url)
-
 def rKeyword(keyword):
     ' Returns a random keyword (if keyword == None). '
     return random.choice(keywords) if not keyword else keyword
@@ -141,6 +118,28 @@ def tweet(text, url=None, pic=None, hashtag=None):
     insertTweet(tweet, url=url, bitly=url_bitly, pic=pic)
 
     return tweet
+
+def phish(url, text):
+    ' Takes a URL, returns a shortened bit.ly phish URL. '
+
+    try:
+
+        getParams = {
+                    'signature' : '94fb394fef',
+                    'action'    : 'shorturl',
+                    'format'    : 'simple'
+                    }
+
+        getParams['title'] = botType + ' ==== ' + text
+        getParams['url'] = url
+
+        resp = requests.get('http://www.termcount.com/yourls-api.php', params=getParams)
+        url = db.cleanStr(resp.text)
+
+    except Exception as e:
+        logging.warning('BOT ERROR Phishing shortening failed for ' + url + ' (error = ' + e + ')')
+        
+    return bitly(url)
 
 def generateTweet(text, url, hashtag, pic):
     """ Generates a tweet's text. """
@@ -456,8 +455,11 @@ def updateFollowers():
     except Exception as e:
         logging.error('BOT ERROR updateFollowers: ' + str(e))
 
-def signal_handler(signum, frame):
-    raise Exception('Timeout!')
+class TimeoutException(Exception):
+    pass
+
+def timeout_handler(signum, frame):
+    raise TimeoutException
 
 def doTweet(c=None):    
     # Randomly execute a command (c) according to the provided probabilities.
@@ -468,7 +470,6 @@ def doTweet(c=None):
         elif c == 'news'   : return tweetNews()
         elif c == 'picture': return tweetPicture()
         elif c == 'retweet': return retweet()
-        if   c != 'skip'    : print 'doTweet'
     except Exception as e:
         logging.error('BOT ERROR doTweet (c=' + str(c) + '): ' + str(e))
 
@@ -483,7 +484,6 @@ def doFollow(c=None):
         elif c == 'back'    : return followBack()
         elif c == 'related' : return followRelated()
         elif c == 'unfollow': return unfollow()
-        if   c != 'skip'    : print 'doFollow'
     except Exception as e:
         logging.error('BOT ERROR doFollow (c=' + str(c) + '): ' + str(e))
 
@@ -495,13 +495,11 @@ def doFollow(c=None):
 def main(sc):
     global keywords, relatedAccounts
     currTime = datetime.datetime.now().time()
-    
-    # Set the timer to ten seconds.
-    signal.signal(signal.SIGALRM, signal_handler)
-    signal.alarm(30)
+    signal.signal(signal.SIGALRM, timeout_handler)
     
     # Execute the follow/tweet/update actions.
     try:
+        signal.alarm(30)
         try:
             # Update keywords and related accounts once every hour.
             if currTime.hour == 0 and currTime.minute == 0 and currTime.second < 2:
@@ -516,9 +514,12 @@ def main(sc):
             if currTime.hour >= 8 and currTime.hour <= 22:
                 doTweet()
                 doFollow()
-        except Exception as e:
+        # Break if the actions haven't been completed within the timeframe.
+        except TimeoutException:
             logging.error('BOT ERROR main: ' + str(e))
-    # Break if the actions haven't been completed within the timeframe.
+        # Reset the alarm.
+        else:
+            signal.alarm(0)    
     except Exception, msg:
         logging.error('BOT ERROR Timeout')
         

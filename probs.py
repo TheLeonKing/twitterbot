@@ -106,6 +106,3 @@ if __name__ == '__main__':
         print '\nProbabilities for tweet and follow updated!'
         printProbs('tweet')
         printProbs('follow')
-
-
-
