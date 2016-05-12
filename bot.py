@@ -512,7 +512,7 @@ def main(sc):
             if currTime.second == 10 and currTime.minute % 10 == 0: updateFollowers()
 
             # Only show activity between 8:00 AM and 10:00 PM.
-            if currTime.hour >= 8 and currTime.hour <= 22:
+            if True: #currTime.hour >= 8 and currTime.hour <= 22:
                 doTweet()
                 doFollow()
         # Break if the actions haven't been completed within the timeframe.
