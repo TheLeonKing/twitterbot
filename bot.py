@@ -463,7 +463,7 @@ def updateFollowers():
         # While the followers list contains more users (Twitter API has max of 200 users per request).
         while(nextCursor):
             results = twython.get_followers_list(screen_name=myHandle, count=200, cursor=nextCursor)
-            logging.warning('BOT TWREQ updateFollowers')
+            logging.warning('BOT TWREQ updateFollowers (nextCursor=' + str(nextCursor) + ')')
             
             # Only insert a user if (s)he is not already in the database.
             for user in results['users']:
