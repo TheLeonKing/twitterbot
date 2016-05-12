@@ -18,6 +18,7 @@ import re
 import related
 import requests
 import sched
+import signal
 import sys
 import textwrap
 import time
@@ -99,7 +100,13 @@ def insertFollower(uId, uHandle, followers):
     ' Inserts a follow interaction into the database. '
     query = 'INSERT INTO followers (user_id, user_handle, followers) VALUES (%s, %s, %s);'
     db.executeQuery(query, (uId, uHandle, followers))
-    
+
+class TimeoutException(Exception):
+    pass
+
+def timeout_handler(signum, frame):
+    raise TimeoutException
+
 def tweet(text, url=None, pic=None, hashtag=None):
     ' Directly posts a (general) tweet. '
     
@@ -454,12 +461,6 @@ def updateFollowers():
         return None
     except Exception as e:
         logging.error('BOT ERROR updateFollowers: ' + str(e))
-
-class TimeoutException(Exception):
-    pass
-
-def timeout_handler(signum, frame):
-    raise TimeoutException
 
 def doTweet(c=None):    
     # Randomly execute a command (c) according to the provided probabilities.
