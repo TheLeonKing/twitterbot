@@ -72,21 +72,21 @@ def executeQuery(query, values=(), db=dbC['name'], output=False):
         except Exception as e:
             pass
             
-            signal.signal(signal.SIGALRM, timeout_handler)
-            
-            # Give the query 20 seconds to complete.
-            try:
-                signal.alarm(20)
-                db = connect(db)
-                cursor = db.cursor()
-                cursor.execute(query, values)
-                if output: return cursor.fetchall()
-            # Break if the actions haven't been completed within the timeframe.
-            except TimeoutException:
-                logging.error('BOT ERROR main: ' + str(e))
-            # Reset the alarm.
-            else:
-                signal.alarm(0)
+        signal.signal(signal.SIGALRM, timeout_handler)
+        
+        # Give the query 20 seconds to complete.
+        try:
+            signal.alarm(20)
+            db = connect(db)
+            cursor = db.cursor()
+            cursor.execute(query, values)
+            if output: return cursor.fetchall()
+        # Break if the actions haven't been completed within the timeframe.
+        except TimeoutException:
+            logging.error('BOT ERROR main: ' + str(e))
+        # Reset the alarm.
+        else:
+            signal.alarm(0)
     except Exception as e:
         logging.error('DBX ERROR executeQuery (query=' + query + '): ' + str(e))
 
