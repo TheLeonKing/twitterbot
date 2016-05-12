@@ -67,6 +67,8 @@ relatedAccounts = related.fetchRelated('accounts')
 tweetProbs = probs.fetchProbs('tweet')
 followProbs = probs.fetchProbs('follow')
 
+followers = []
+
 def bitly(url):
     ' Takes an URL, returns its shortened bit.ly URL. '
     shorten = bitlyConn.shorten(url)
@@ -450,19 +452,23 @@ def unfollow():
 
 def updateFollowers():
     ' Updates the database of people who follow the bot. '
+    global followers
+    
     nextCursor = -1
     try:
         # While the followers list contains more users (Twitter API has max of 200 users per request).
         while(nextCursor):
             results = twython.get_followers_list(screen_name=myHandle, count=200, cursor=nextCursor)
             logging.warning('BOT TWREQ updateFollowers')
-            
+            print results['users'] ######
             # Only insert a user if (s)he is not already in the database.
             for user in results['users']:
-                if not exists('user_id', user['id'], 'followers'):
-                    user['screen_name'] = db.cleanStr(user['screen_name'])
-                    insertFollower(user['id'], user['screen_name'], user['followers_count'])
-                    print '\nAdded follower to database:', user['screen_name']
+                if user['id'] not in followers:
+                    followers.append(user['id'])
+                    if not exists('user_id', user['id'], 'followers'):
+                        user['screen_name'] = db.cleanStr(user['screen_name'])
+                        insertFollower(user['id'], user['screen_name'], user['followers_count'])
+                        print '\nAdded follower to database:', user['screen_name']
             nextCursor = results['next_cursor']
         return None
     except Exception as e:

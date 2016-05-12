@@ -82,13 +82,13 @@ def executeQuery(query, values=(), db=dbC['name'], output=False):
             cursor.execute(query, values)
             if output: return cursor.fetchall()
         # Break if the actions haven't been completed within the timeframe.
-        except TimeoutException:
-            logging.error('BOT ERROR main: ' + str(e))
+        except TimeoutException as e:
+            logging.error('DBX ERROR executeQuery1 (query=' + query + '): ' + str(e))
         # Reset the alarm.
-        else:
+        finally:
             signal.alarm(0)
     except Exception as e:
-        logging.error('DBX ERROR executeQuery (query=' + query + '): ' + str(e))
+        logging.error('DBX ERROR executeQuery2 (query=' + query + '): ' + str(e))
 
 def createDb(db):
     con = MySQLdb.connect(dbC['host'], dbC['user'], dbC['pass'], port=dbC['port'])
