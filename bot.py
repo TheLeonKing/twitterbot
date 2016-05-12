@@ -238,8 +238,12 @@ def tweetPicture(keyword=None, page=1):
             print '\nTweeted (picture):', tweet(pic['title'], url=pic['url'], pic=pic['id'], hashtag=keyword)
             return None
     
+    # Log error if no pictures were returned
+    if len(results['photos']['photo']) == 0:
+        logging.warning('BOT ERROR Could not find pictures for ' + str(keyword))
     # If the loop ended, we've tweeted all pictures already --> recursively call the next page.
-    tweetPicture(keyword, page=page+1)
+    else:
+        return tweetPicture(keyword, page=page+1)
 
 def retweet(keyword=None):
     '''
@@ -266,12 +270,12 @@ def retweet(keyword=None):
     
     for tweet in results:
         # Correctly decode the tweet and screen name.
-        logging.warning(tweet['text'] + tweet['user']['screen_name'])
         tweet['text'] = db.cleanStr(tweet['text'])
         tweet['user']['screen_name'] = db.cleanStr(tweet['user']['screen_name'])
         
         # Retweet the first tweet that satisfies all the requirements.
         if longTweet(tweet) and englishTweet(tweet) and positiveTweet(tweet) and notOffensive(tweet['text'], tweet['user']['screen_name']) and not exists('id', tweet['id'], 'retweets'):
+            logging.warning(tweet['text'] + tweet['user']['screen_name'])
             twython.retweet(id=tweet['id'])
             logging.warning('BOT TWREQ retweet')
             insertRetweet(tweet['id'], tweet['text'], tweet['user']['screen_name'], tweet['user']['followers_count'], tweet['retweet_count'])
