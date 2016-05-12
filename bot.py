@@ -460,7 +460,7 @@ def updateFollowers():
         while(nextCursor):
             results = twython.get_followers_list(screen_name=myHandle, count=200, cursor=nextCursor)
             logging.warning('BOT TWREQ updateFollowers')
-            print results['users'] ######
+            
             # Only insert a user if (s)he is not already in the database.
             for user in results['users']:
                 if user['id'] not in followers:
