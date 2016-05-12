@@ -180,7 +180,7 @@ def generateTweet(text, url, hashtag, pic):
 def exists(col, val, table='tweets'):
     ''' Checks whether a column-value pair exists, e.g.
         to check if a picture has already been tweeted. '''
-    noOfResults = len(db.executeQuery('SELECT * FROM ' + table + ' WHERE ' + str(col) + ' = "' + str(val) + '"', output=True))
+    noOfResults = len(db.executeQuery('SELECT * FROM ' + table + ' WHERE ' + str(col) + ' = %s', values=(val,), output=True))
     return True if (noOfResults > 0) else False
 
 
