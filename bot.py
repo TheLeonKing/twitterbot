@@ -18,7 +18,6 @@ import re
 import related
 import requests
 import sched
-import signal
 import sys
 import textwrap
 import time

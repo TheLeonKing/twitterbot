@@ -6,6 +6,7 @@ Contains all functions related to database access and management.
 import ConfigParser
 import logging
 import MySQLdb
+import signal
 import sys
 
 from unidecode import unidecode
