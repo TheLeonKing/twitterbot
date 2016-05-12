@@ -2,6 +2,7 @@
 Updates the related keywords/accounts.
 '''
 
+import cStringIO
 import db
 import ConfigParser
 import logging
@@ -36,7 +37,10 @@ twython = Twython(
 
 # Set up the bad words and stopwords list.
 badWords = set(line.strip('\n') for line in open('bad_words.txt'))
+save_stdout = sys.stdout
+sys.stdout = cStringIO.StringIO()
 nltk.download('stopwords')
+sys.stdout = save_stdout
 stop = stopwords.words('english')
 
 
