@@ -17,8 +17,8 @@ twython = Twython(
 )
 
 session = ftplib.FTP(
-    config.get('ftp', 'host')
-    config.get('ftp', 'user')
+    config.get('ftp', 'host'),
+    config.get('ftp', 'user'),
     config.get('ftp', 'pass')
 )
 
