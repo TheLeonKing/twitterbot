@@ -532,6 +532,7 @@ def main(sc):
                 if trending: related.updateTrending()
                 keywords = related.fetchRelated('keywords')
                 relatedAccounts = related.fetchRelated('accounts')
+            else: stdout.write('z'), sys.stdout.flush()                
 
             # Update followers once every ten minutes.
             if currTime.second == 10 and currTime.minute % 10 == 0: updateFollowers()
