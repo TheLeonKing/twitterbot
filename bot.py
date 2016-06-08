@@ -532,7 +532,6 @@ def main(sc):
                 if trending: related.updateTrending()
                 keywords = related.fetchRelated('keywords')
                 relatedAccounts = related.fetchRelated('accounts')
-            else: stdout.write('z'), sys.stdout.flush()                
 
             # Update followers once every ten minutes.
             if currTime.second == 10 and currTime.minute % 10 == 0: updateFollowers()
@@ -541,6 +540,8 @@ def main(sc):
             if currTime.hour >= 8 and currTime.hour <= 22:
                 doTweet()
                 doFollow()
+            else: stdout.write('z'), sys.stdout.flush()
+        
         # Break if the actions haven't been completed within the timeframe.
         except TimeoutException as e:
             logging.error('BOT ERROR main1: ' + str(e))
