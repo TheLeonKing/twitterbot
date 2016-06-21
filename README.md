@@ -2,7 +2,7 @@
 Leon Kempers
 
 ## Description
-This is the source code of the bot I created for my thesis. Please feel free to use and/or modify it for your own research. Crediting my thesis `Kempers, L. (2016). *Phishing Through Social Bots on Twitter - The Organizational Security Threats and Mitigation Strategies*. University of Amsterdam.` would be appreciated.
+This is the source code of the bot I created for my thesis. Please feel free to use and/or modify it for your own research. Crediting my thesis `Kempers, L. (2016). Phishing Through Social Bots on Twitter - The Organizational Security Threats and Mitigation Strategies. University of Amsterdam.` would be appreciated.
 
 ## Requirements
 To set-up a social bot, you need:
